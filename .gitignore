@@ -123,4 +123,7 @@ public/
 # DynamoDB Local files
 .dynamodb/
 
+# Output of TypeScript compilation
+build/*
+
 # End of https://www.gitignore.io/api/node,macos
