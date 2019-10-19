@@ -10,9 +10,11 @@
   "author": "drzamich <drzamich@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@types/cheerio": "^0.22.13",
     "axios": "0.19.0",
     "cheerio": "1.0.0-rc.3",
     "express": "4.17.1",
+    "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   },
   "devDependencies": {
