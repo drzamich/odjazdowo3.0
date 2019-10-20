@@ -27,7 +27,6 @@
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^1.7.0",
     "jest": "^24.9.0",
-    "tslint": "^5.20.0",
     "typescript": "^3.6.4"
   }
 }
