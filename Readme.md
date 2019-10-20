@@ -1,4 +1,4 @@
-# Messenger bot created with Node.js
+# Messenger bot created with TypeScript and Node.js
 In more detail: bot that gives you information about most recent departures of your public mean of transport in Warsaw.
 
 ## Manual
