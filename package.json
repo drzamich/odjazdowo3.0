@@ -1,6 +1,6 @@
 {
-  "name": "bot.js",
-  "version": "0.0.1",
+  "name": "bot.ts",
+  "version": "0.0.2",
   "description": "Messenger bot",
   "scripts": {
     "start": "tsc && node ./build/server.js",
