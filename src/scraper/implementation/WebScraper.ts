@@ -1,11 +1,11 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
-import WebScraperInt from '../interface/WebScraper';
+import { IWebScraper } from '../interface';
 
-export default class WebScraper implements WebScraperInt {
-  async fetchAndParseWebsite(url: string): Promise<CheerioStatic> {
-    console.log(url);
-    const result: any = await axios.get(url);
-    return cheerio.load(result.data);
+export default class WebScraper implements IWebScraper {
+  constructor(private fefetchedWebsite: string) {
+
+  }
+
+  fetchAndParseWebsite(url: string): void {
+    this.fefetchedWebsite = url;
   }
 }

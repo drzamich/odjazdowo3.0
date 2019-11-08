@@ -1,16 +1,13 @@
-import TimetableScraper from '../interface/TimetableScraper';
 import WebScraper from './WebScraper';
-import Station from '../interface/Station';
+import { IStation, ITimetableScraper } from '../interface';
 
-export default class ZtmScraper extends WebScraper implements TimetableScraper {
-  constructor() {
-    super();
-  }
-
+export default class ZtmScraper extends WebScraper implements ITimetableScraper {
   baseUrl = 'http://www.ztm.waw.pl/';
-  aggregatePageUrl = this.baseUrl + 'rozklad_nowy.php?c=183&l=1';
 
-  generateStationList() {
+  aggregatePageUrl = `${this.baseUrl}rozklad_nowy.php?c=183&l=1`;
+
+  generateStationList(): IStation[] {
+    this.fetchAggregatePage();
     return [];
   }
 
