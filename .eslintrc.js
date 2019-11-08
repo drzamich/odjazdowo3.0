@@ -7,7 +7,7 @@ module.exports = {
     },
     "extends": [
         "plugin:@typescript-eslint/recommended",
-        "airbnb"
+        "airbnb-typescript/base",
     ],
     "globals": {
         "Atomics": "readonly",
@@ -24,13 +24,7 @@ module.exports = {
         "react",
         "@typescript-eslint"
     ],
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"]
-            }
-        }
-    },
     "rules": {
+        "@typescript-eslint/interface-name-prefix": "off"
     }
 };
