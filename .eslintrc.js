@@ -25,6 +25,10 @@ module.exports = {
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/interface-name-prefix": "off"
+        "@typescript-eslint/interface-name-prefix": "off",
+        "import/prefer-default-export": "off",
+        "class-methods-use-this": "off",
+        "no-console": "off",
+        "max-len": "warn"
     }
 };

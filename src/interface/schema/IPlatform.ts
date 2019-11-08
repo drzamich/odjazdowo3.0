@@ -1,6 +1,6 @@
-import IDeparture from './IDeparture';
+import { IDeparture } from './IDeparture';
 
-export default interface IPlatform {
+export interface IPlatform {
   stationId: number;
   plNumber: number;
   direction: string;

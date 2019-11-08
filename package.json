@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "Messenger bot",
   "scripts": {
-    "start": "tsc && node ./build/server.js",
+    "start": "tsc && node ./build/Main.js",
     "test": "jest",
     "tsc": "tsc"
   },
@@ -12,7 +12,10 @@
   "dependencies": {
     "axios": "0.19.0",
     "cheerio": "1.0.0-rc.3",
-    "express": "4.17.1"
+    "express": "4.17.1",
+    "inversify": "^5.0.1",
+    "inversify-express-utils": "^6.3.2",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.13",
