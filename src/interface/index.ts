@@ -1,20 +1,11 @@
-import {
+export {
   IDeparture,
   IPlatform,
   IStation,
 } from './schema';
 
-import {
-  IScrapeService,
+export {
+  ITimetableScrapeService,
   IWebFetchSerivce,
   IWebParseService,
 } from './service';
-
-export {
-  IDeparture,
-  IPlatform,
-  IStation,
-  IScrapeService,
-  IWebFetchSerivce,
-  IWebParseService,
-};

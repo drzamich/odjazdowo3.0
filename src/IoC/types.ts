@@ -1,6 +1,7 @@
 export const TYPES = {
   ScrapeContoller: Symbol.for('ScrapeContoller'),
-  IScrapeService: Symbol.for('IScrapeService'),
+  ITimetableScrapeService: Symbol.for('IScrapeService'),
   IWebFetchService: Symbol.for('IWebFetchService'),
   IWebParseService: Symbol.for('IWebParseService'),
+  IZtmParseService: Symbol.for('IZtmParseService'),
 };

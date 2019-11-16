@@ -1,9 +1,9 @@
-import { IScrapeService } from './IScrapeService';
+import { ITimetableScrapeService } from './ITimetableScrapeService';
 import { IWebFetchSerivce } from './IWebFetchService';
 import { IWebParseService } from './IWebParseService';
 
 export {
-  IScrapeService,
+  ITimetableScrapeService,
   IWebFetchSerivce,
   IWebParseService,
 };

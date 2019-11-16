@@ -1,3 +1,3 @@
 export interface IWebParseService {
-  parseHTMLString(HTMLString: string): Cheerio;
+  parseHTMLString(HTMLString: string): CheerioStatic;
 }
