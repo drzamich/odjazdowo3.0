@@ -1,9 +1,5 @@
-import { IDeparture } from './IDeparture';
-import { IPlatform } from './IPlatform';
-import { IStation } from './IStation';
+export { IDeparture } from './general/IDeparture';
+export { IPlatform } from './general/IPlatform';
+export { IStation } from './general/IStation';
 
-export {
-  IDeparture,
-  IPlatform,
-  IStation,
-};
+export { IZtmStation } from './ztm/IZtmStation';

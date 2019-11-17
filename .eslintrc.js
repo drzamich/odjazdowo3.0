@@ -30,6 +30,7 @@ module.exports = {
         "import/prefer-default-export": "off",
         "class-methods-use-this": "off",
         "no-console": "off",
-        "max-len": "warn"
+        "max-len": "warn",
+        "object-curly-newline": "off"
     }
 };

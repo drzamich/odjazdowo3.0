@@ -1,5 +1,1 @@
-import { ScrapeContoller } from './ScrapeController';
-
-export {
-  ScrapeContoller,
-};
+export { ScrapeContoller } from './ScrapeController';
