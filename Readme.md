@@ -14,12 +14,12 @@ This app has been developed with Node.js `10.16.3 LTS`. If you have different No
 
 Build the image
 ```
-docker build -t <your-desired-name> .
+docker build -t drzamich/bot.ts .
 ```
 
 Running the container
 ```
-docker run -d -p 3000:3000 <your-desired-name>
+docker run -d -p 3000:3000 drzamich/bot.ts
 ```
 this command will return a unique `<container-id>` that you might need later.
 
@@ -30,7 +30,7 @@ docker kill <container-id>
 
 Running tests
 ```
-docker exec -it <container-id> npm test
+docker run drzamich/bot.ts /bin/bash && npm test
 ```
 ### Running the bot directly on your machine
 > faster but less stable way (that if you don't care about environment configutation of course!)
