@@ -21,9 +21,26 @@ export class ZtmScrapeService implements ITimetableScrapeService {
   }
 
   private getStationList(aggregateHtml: string): IStation[] {
-    const parsedWebsite = this.webParseService.parseHTMLString(aggregateHtml);
-    return [
-      new ZtmStation(10, 'test', 'url'),
-    ];
+    const $ = this.webParseService.parseHTMLString(aggregateHtml);
+    const emptyStationList = this.generateEmptyStations($);
+    return emptyStationList;
+  }
+
+  private generateEmptyStations($: CheerioStatic): IStation[] {
+    const links = $('.timetable-stops-block-body-item a');
+    const warsawIdentifier = '(Warszawa)';
+    const emptyStationList: IStation[] = [];
+    const warsawLinks = links.filter((index, element) => (
+      $(element).text().includes(warsawIdentifier)
+    ));
+    warsawLinks.each((index, element) => {
+      const item = $(element);
+      const url = item.attr('href');
+      const fullName = item.find('span').first().text();
+      const name = fullName.split(warsawIdentifier)[0];
+      const id = url.split('wtp_st=')[1];
+      emptyStationList.push(new ZtmStation(id, name, url));
+    });
+    return emptyStationList;
   }
 }
