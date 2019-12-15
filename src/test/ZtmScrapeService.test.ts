@@ -1,9 +1,11 @@
+
+/* eslint-disable max-classes-per-file */
 import 'reflect-metadata';
 
 import wtpAggregatePage from './mocks/wtpAggregatePage';
 import wtpPlatformPage from './mocks/wtpStationPage';
 import { ZtmScrapeService, WebParseService } from '../service';
-import { IWebFetchSerivce } from '../interface';
+import { IWebFetchSerivce, IDbService, IZtmStation } from '../interface';
 
 class AxiosMock implements IWebFetchSerivce {
   async get<T>(url: string): Promise<T> {
@@ -14,9 +16,18 @@ class AxiosMock implements IWebFetchSerivce {
   }
 }
 
+class DbMock implements IDbService {
+  saveZtmStation(station: IZtmStation): void {}
+
+  deleteAllStations(): void{}
+
+  getZtmStations(): void {}
+}
+
 const axiosMock = new AxiosMock();
+const dbMock = new DbMock();
 const webParseService = new WebParseService();
-const ztmScrapeService = new ZtmScrapeService(axiosMock, webParseService);
+const ztmScrapeService = new ZtmScrapeService(axiosMock, webParseService, dbMock);
 
 describe(ZtmScrapeService.name, () => {
   it('generates station list of proper length', async () => {

@@ -1,16 +1,17 @@
 import { injectable, inject } from 'inversify';
 
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IStation } from '../interface';
+import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IStation, ZtmStationModel, IDbService } from '../interface';
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 
 @injectable()
 export class ZtmScrapeService implements ITimetableScrapeService {
-  private url = 'https://www.wtp.waw.pl/rozklady-jazdy/?wtp_dt=2019-11-08&wtp_md=1';
+  private url = 'https://www.wtp.waw.pl/rozklady-jazdy/?wtp_dt=2019-12-15&wtp_md=1';
 
   constructor(
     @inject(TYPES.IWebFetchService) private webFetchService: IWebFetchSerivce,
     @inject(TYPES.IWebParseService) private webParseService: IWebParseService,
+    @inject(TYPES.IDbService) private dbService: IDbService,
   ) {}
 
   async scapeTimetable(): Promise<IStation[]> {
@@ -38,8 +39,10 @@ export class ZtmScrapeService implements ITimetableScrapeService {
       const url = item.attr('href');
       const fullName = item.find('span').first().text();
       const name = fullName.split(warsawIdentifier)[0];
-      const id = url.split('wtp_st=')[1];
-      emptyStationList.push(new ZtmStation(id, name, url));
+      const ztmId = url.split('wtp_st=')[1];
+      const ztmStation = new ZtmStation(ztmId, name, url);
+      this.dbService.saveZtmStation(ztmStation);
+      emptyStationList.push(ztmStation);
     });
     return emptyStationList;
   }
