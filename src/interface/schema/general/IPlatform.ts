@@ -1,9 +1,7 @@
 import { IDeparture } from './IDeparture';
 
 export interface IPlatform {
-  stationId: number;
-  plNumber: number;
+  plNumber: string;
   direction: string;
-  isInSipTw: boolean;
   departures: IDeparture[];
 }
