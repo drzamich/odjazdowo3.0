@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IStation, IPlatform, IZtmStation, IZtmPlatform } from '../interface';
+import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IStation, IZtmStation, IZtmPlatform } from '../interface';
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
@@ -20,9 +20,9 @@ export class ZtmScrapeService implements ITimetableScrapeService {
   }
 
   public async getEmptyStations(aggregatePageUrl: string): Promise<IZtmStation[]> {
-    // console.log(`Fetching ${aggregatePageUrl}, please wait...`);
+    console.log(`Fetching list of stations from ${aggregatePageUrl} ...`);
     const fetchedWebsite = await this.webFetchService.get<string>(aggregatePageUrl);
-    // console.log(`${aggregatePageUrl}, fetched....`);
+    console.log('List of stations fetched. Parsing...');
     const $ = this.webParseService.parseHTMLString(fetchedWebsite);
     const links = $('.timetable-stops-block-body-item a');
     const warsawIdentifier = '(Warszawa)';
@@ -39,13 +39,21 @@ export class ZtmScrapeService implements ITimetableScrapeService {
       const ztmStation = new ZtmStation(ztmId, name, url);
       emptyStationList.push(ztmStation);
     });
+    console.log('List of stations parsed.');
     return emptyStationList;
   }
 
   public async getPlatforms(emptyStations: IZtmStation[]): Promise<IZtmStation[]> {
     const result: IZtmStation[] = [];
-    emptyStations.forEach(async ({ ztmId, url, name }) => {
+    const len = emptyStations.length;
+    for (let i = 0; i < len; i++) {
+      const { name, url, ztmId } = emptyStations[i];
+      console.log(`Fetching platforms for station '${name}' ...`);
       const fetchedWebsite = await this.webFetchService.get<string>(url);
+      if (!fetchedWebsite) {
+        console.log(`Could not get platforms for station ${name}`);
+        continue;
+      }
       const $ = this.webParseService.parseHTMLString(fetchedWebsite);
       const links = $('.timetable-link');
       const platforms: IZtmPlatform[] = [];
@@ -58,7 +66,11 @@ export class ZtmScrapeService implements ITimetableScrapeService {
         platforms.push(new ZtmPlatform(plNumber, direction, platformUrl));
       });
       result.push(new ZtmStation(ztmId, name, url, platforms));
-    });
+      console.log(`Platforms for stations '${name}' succesfully fetched and parsed.`);
+    }
+    const success = result.length;
+    const failure = emptyStations.length - success;
+    console.log(`Platforms fetching completed. Success: ${success}. Failure: ${failure}`);
     return result;
   }
 }
