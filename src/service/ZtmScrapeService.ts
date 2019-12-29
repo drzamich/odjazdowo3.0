@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import moment from 'moment';
 
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IZtmStation, IZtmPlatform } from '../interface';
+import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IZtmStation, IZtmPlatform, IRealTimeDepartureService } from '../interface';
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
@@ -11,6 +11,7 @@ export class ZtmScrapeService implements ITimetableScrapeService {
   constructor(
     @inject(TYPES.IWebFetchService) private webFetchService: IWebFetchSerivce,
     @inject(TYPES.IWebParseService) private webParseService: IWebParseService,
+    @inject(TYPES.IRealTimeDepartureService) private sipTwService: IRealTimeDepartureService,
   ) {}
 
   async scapeTimetable(): Promise<IZtmStation[]> {
@@ -46,8 +47,8 @@ export class ZtmScrapeService implements ITimetableScrapeService {
 
   public async getPlatforms(emptyStations: IZtmStation[]): Promise<IZtmStation[]> {
     const result: IZtmStation[] = [];
-    // const len = emptyStations.length;
-    const len = Math.min(emptyStations.length, 2);
+    const sipTwIds = await this.sipTwService.getPlatformsList();
+    const len = emptyStations.length;
     for (let i = 0; i < len; i++) {
       const { name, url, ztmId } = emptyStations[i];
       console.log(`Fetching platforms for station '${name}' ...`);
@@ -64,8 +65,10 @@ export class ZtmScrapeService implements ITimetableScrapeService {
         const platformUrl = item.attr('href');
         const fullName = item.find('.timetable-stop-point-title-name').text().trim().split(' ');
         const plNumber = fullName[fullName.length - 1];
+        const sipTwId = ztmId + plNumber;
+        const isInSipTw = sipTwIds.includes(sipTwId);
         const direction = item.find('.timetable-stop-point-title-destination').text().trim();
-        platforms.push(new ZtmPlatform(plNumber, direction, platformUrl));
+        platforms.push(new ZtmPlatform(plNumber, direction, platformUrl, isInSipTw));
       });
       result.push(new ZtmStation(ztmId, name, url, platforms));
       console.log(`Platforms for stations '${name}' succesfully fetched and parsed.`);

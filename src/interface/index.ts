@@ -12,4 +12,5 @@ export {
   IWebFetchSerivce,
   IWebParseService,
   IDbService,
+  IRealTimeDepartureService,
 } from './service';
