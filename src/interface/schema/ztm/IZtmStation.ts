@@ -9,10 +9,15 @@ export interface IZtmStation extends IStation {
 }
 
 const ztmStationSchema = new Schema({
-  ztmId: String,
   name: String,
-  // platforms: [{ type: Schema.Types.ObjectId, ref: 'ZtmPlatform' }],
+  ztmId: String,
   url: String,
+  platforms: [{
+    plNumber: String,
+    direction: String,
+    url: String,
+    isInSipTw: Boolean,
+  }],
 });
 
 interface ZtmStationModel extends IZtmStation, Document {}

@@ -25,7 +25,7 @@ describe(`${ZtmScrapeService.name}#getEmptyStations`, () => {
   it('generates an empty station list of proper length', async () => {
     // given
     // when
-    const emptyStationList = await ztmScrapeService.getEmptyStations('dummy_url');
+    const emptyStationList = await ztmScrapeService.getEmptyStations();
     // then
     expect(emptyStationList).toHaveLength(1507);
   });
@@ -33,7 +33,7 @@ describe(`${ZtmScrapeService.name}#getEmptyStations`, () => {
   it('stations at different positions have proper names', async () => {
     // given
     // when
-    const stationList = await ztmScrapeService.getEmptyStations('dummy_url');
+    const stationList = await ztmScrapeService.getEmptyStations();
     // then
     expect(stationList[0].name).toEqual('1 Sierpnia');
     expect(stationList[88].name).toEqual('Bieżuńska');
@@ -67,7 +67,7 @@ describe(`${ZtmScrapeService.name}#getEmptyStations`, () => {
       },
     ];
     // when
-    const stationList = await ztmScrapeService.getEmptyStations('dummy_url');
+    const stationList = await ztmScrapeService.getEmptyStations();
     // then
     expectedStationsWithIds.forEach(mockedStation => {
       const stationFromList = stationList.find(station => station.name === mockedStation.name) as IZtmStation;

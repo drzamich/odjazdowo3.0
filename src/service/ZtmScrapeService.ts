@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
+import moment from 'moment';
 
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IStation, IZtmStation, IZtmPlatform } from '../interface';
+import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IZtmStation, IZtmPlatform } from '../interface';
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
@@ -10,18 +11,18 @@ export class ZtmScrapeService implements ITimetableScrapeService {
   constructor(
     @inject(TYPES.IWebFetchService) private webFetchService: IWebFetchSerivce,
     @inject(TYPES.IWebParseService) private webParseService: IWebParseService,
-    private aggegateUrl = 'https://www.wtp.waw.pl/rozklady-jazdy/?wtp_dt=2019-12-15&wtp_md=1',
   ) {}
 
-  async scapeTimetable(): Promise<IStation[]> {
-    const stationsWithoutPlatforms = await this.getEmptyStations(this.aggegateUrl);
+  async scapeTimetable(): Promise<IZtmStation[]> {
+    const stationsWithoutPlatforms = await this.getEmptyStations();
     const stationsWithPlatforms = this.getPlatforms(stationsWithoutPlatforms);
     return stationsWithPlatforms;
   }
 
-  public async getEmptyStations(aggregatePageUrl: string): Promise<IZtmStation[]> {
-    console.log(`Fetching list of stations from ${aggregatePageUrl} ...`);
-    const fetchedWebsite = await this.webFetchService.get<string>(aggregatePageUrl);
+  public async getEmptyStations(): Promise<IZtmStation[]> {
+    const aggregateUrl = this.generateAggregateUrl();
+    console.log(`Fetching list of stations from ${aggregateUrl} ...`);
+    const fetchedWebsite = await this.webFetchService.get<string>(aggregateUrl);
     console.log('List of stations fetched. Parsing...');
     const $ = this.webParseService.parseHTMLString(fetchedWebsite);
     const links = $('.timetable-stops-block-body-item a');
@@ -39,13 +40,14 @@ export class ZtmScrapeService implements ITimetableScrapeService {
       const ztmStation = new ZtmStation(ztmId, name, url);
       emptyStationList.push(ztmStation);
     });
-    console.log('List of stations parsed.');
+    console.log(`List of stations parsed. Number of stations: ${emptyStationList.length}`);
     return emptyStationList;
   }
 
   public async getPlatforms(emptyStations: IZtmStation[]): Promise<IZtmStation[]> {
     const result: IZtmStation[] = [];
-    const len = emptyStations.length;
+    // const len = emptyStations.length;
+    const len = Math.min(emptyStations.length, 2);
     for (let i = 0; i < len; i++) {
       const { name, url, ztmId } = emptyStations[i];
       console.log(`Fetching platforms for station '${name}' ...`);
@@ -72,5 +74,10 @@ export class ZtmScrapeService implements ITimetableScrapeService {
     const failure = emptyStations.length - success;
     console.log(`Platforms fetching completed. Success: ${success}. Failure: ${failure}`);
     return result;
+  }
+
+  private generateAggregateUrl(): string {
+    const date = moment().format('YYYY-MM-DD');
+    return `https://www.wtp.waw.pl/rozklady-jazdy/?wtp_dt=${date}&wtp_md=1`;
   }
 }

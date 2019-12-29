@@ -4,5 +4,6 @@ export const TYPES = {
   IWebParseService: Symbol.for('IWebParseService'),
   IZtmParseService: Symbol.for('IZtmParseService'),
   IDbService: Symbol.for('IDbService'),
-  MainController: Symbol.for('MainController'),
+  DoController: Symbol.for('DoController'),
+  GetController: Symbol.for('GetController'),
 };

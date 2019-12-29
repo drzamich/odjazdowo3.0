@@ -1,1 +1,2 @@
-export { MainController } from './MainController';
+export { DoController } from './DoController';
+export { GetController } from './GetController';
