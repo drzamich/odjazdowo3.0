@@ -10,6 +10,7 @@ export interface IZtmStation extends IStation {
 
 const ztmStationSchema = new Schema({
   name: String,
+  normalizedName: String,
   ztmId: String,
   url: String,
   platforms: [{

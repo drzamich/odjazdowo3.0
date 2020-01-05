@@ -48,14 +48,20 @@ describe(`${ZtmScrapeService.name}#getEmptyStations`, () => {
     const stationList = await ztmScrapeService.getEmptyStations();
     // then
     expect(stationList[0].name).toEqual('1 Sierpnia');
+    expect(stationList[0].normalizedName).toEqual('1 sierpnia');
     expect(stationList[88].name).toEqual('Bieżuńska');
+    expect(stationList[88].normalizedName).toEqual('biezunska');
     expect(stationList[987].name).toEqual('Powązki-Cm.Wojskowy');
+    expect(stationList[987].normalizedName).toEqual('powazki cm wojskowy');
     expect(stationList[1066].name).toEqual('rondo "Radosława"');
+    expect(stationList[1066].normalizedName).toEqual('rondo radoslawa');
     expect(stationList[1239].name).toEqual('Świątynia Opatrzności Bożej');
+    expect(stationList[1239].normalizedName).toEqual('swiatynia opatrznosci bozej');
     expect(stationList[1481].name).toEqual('Zbójnogórska');
+    expect(stationList[1481].normalizedName).toEqual('zbojnogorska');
     expect(stationList[1506].name).toEqual('Żywiecka');
+    expect(stationList[1506].normalizedName).toEqual('zywiecka');
     expect(stationList[1507]).not.toBeDefined();
-    // expect(stationList[1000].name).toEqual('1 Sierpnia');
   });
 
   it('stations have proper IDs', async () => {
