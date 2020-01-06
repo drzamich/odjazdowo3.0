@@ -15,8 +15,8 @@ export class DoController implements interfaces.Controller {
   @httpGet('/scrapeAndSave')
   private async scrape(req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
-    const stations = await this.scrapeService.scapeTimetable();
-    this.dbService.saveZtmStations(stations as IZtmStation[]);
+    const stations = await this.scrapeService.scapeTimetable() as IZtmStation[];
+    this.dbService.saveStations(stations);
   }
 
   @httpGet('/clearDb')

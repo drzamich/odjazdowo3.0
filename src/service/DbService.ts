@@ -6,7 +6,7 @@ import { ZtmStation } from '../schema';
 
 @injectable()
 export class DbService implements IDbService {
-  saveZtmStations(stations: IZtmStation[]): void {
+  saveStations(stations: IZtmStation[]): void {
     ZtmStationModel.insertMany(stations, (error, docs) => {
       if (error) {
         console.log('Could not save stations in the database');
@@ -16,9 +16,18 @@ export class DbService implements IDbService {
     });
   }
 
-  async getZtmStations(): Promise<ZtmStation[]> {
-    const stations = await ZtmStationModel.find({});
+  async getStations(normalizedName: string): Promise<ZtmStation[]> {
+    let stations: ZtmStation[] = [];
+    if (normalizedName === 'all') {
+      stations = await ZtmStationModel.find({});
+    } else {
+      stations = await ZtmStationModel.find({ normalizedName });
+    }
     return stations;
+  }
+
+  async getAllStationNames(): Promise<any[]> {
+    return ZtmStationModel.find({}, 'normalizedName');
   }
 
   deleteAllStations(): void {

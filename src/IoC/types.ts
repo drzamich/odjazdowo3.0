@@ -7,4 +7,5 @@ export const TYPES = {
   DoController: Symbol.for('DoController'),
   GetController: Symbol.for('GetController'),
   IRealTimeDepartureService: Symbol.for('IRealTimeDepartureService'),
+  IMatcherService: Symbol.for('IMatcherService'),
 };

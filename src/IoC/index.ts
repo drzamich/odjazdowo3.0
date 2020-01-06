@@ -3,6 +3,8 @@ import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IDbService
 import { ZtmScrapeService, WebFetchService, WebParseService, DbService, SipTwService } from '../service';
 import { TYPES } from './types';
 import { DoController, GetController } from '../controller';
+import { IMatcherService } from '../interface/service/IMatcherService';
+import { MatcherService } from '../service/MatcherService';
 
 const container = new Container();
 
@@ -13,5 +15,6 @@ container.bind<IRealTimeDepartureService>(TYPES.IRealTimeDepartureService).to(Si
 container.bind<IWebFetchSerivce>(TYPES.IWebFetchService).to(WebFetchService).inSingletonScope();
 container.bind<IWebParseService>(TYPES.IWebParseService).to(WebParseService).inSingletonScope();
 container.bind<IDbService>(TYPES.IDbService).to(DbService).inSingletonScope();
+container.bind<IMatcherService>(TYPES.IMatcherService).to(MatcherService).inSingletonScope();
 
 export { container };

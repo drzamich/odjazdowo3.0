@@ -49,12 +49,14 @@ export class ZtmScrapeService implements ITimetableScrapeService {
     const result: IZtmStation[] = [];
     const sipTwIds = await this.sipTwService.getPlatformsList();
     const len = emptyStations.length;
+    // eslint-disable-next-line no-plusplus
     for (let i = 0; i < len; i++) {
       const { name, url, ztmId } = emptyStations[i];
       console.log(`Fetching platforms for station '${name}' ...`);
       const fetchedWebsite = await this.webFetchService.get<string>(url);
       if (!fetchedWebsite) {
         console.log(`Could not get platforms for station ${name}`);
+        // eslint-disable-next-line no-continue
         continue;
       }
       const $ = this.webParseService.parseHTMLString(fetchedWebsite);

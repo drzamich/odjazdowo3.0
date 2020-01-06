@@ -31,6 +31,7 @@ module.exports = {
         "class-methods-use-this": "off",
         "no-console": "off",
         "max-len": "warn",
-        "object-curly-newline": "off"
+        "object-curly-newline": "off",
+        "no-await-in-loop": "off"
     }
 };
