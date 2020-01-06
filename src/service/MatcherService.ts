@@ -1,14 +1,14 @@
 import { injectable, inject } from 'inversify';
 
+import Fuse from 'fuse.js';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { TYPES } from '../IoC/types';
-import { IDbService, IStation } from '../interface';
-import { ZtmStation } from '../schema';
+import { IDbService } from '../interface';
 
-interface StationNameWithId {
+export type StationNameWithId = {
   _id: string;
   normalizedName: string;
-}
+};
 
 @injectable()
 export class MatcherService implements IMatcherService {
@@ -27,19 +27,29 @@ export class MatcherService implements IMatcherService {
 
   public async matchStationIds(query: string): Promise<string[]> {
     const stationNamesWithIds = await this.dbService.getAllStationNames() as StationNameWithId[];
-    const stationNames = stationNamesWithIds.map(station => station.normalizedName);
-    const splittedQuery = query.split(' ');
-    let matchedNames: string[] = [];
-    for (let i = 1; i <= splittedQuery.length; i += 1) {
-      const compoundName = splittedQuery.slice(0, i).join(' ');
-      const match = stationNames.filter(name => name.startsWith(compoundName));
-      if (match.length > 0) {
-        matchedNames = match;
-      }
-    }
-    const filteredList = stationNamesWithIds.filter(station => matchedNames.includes(station.normalizedName));
-    // eslint-disable-next-line dot-notation
-    const ids = filteredList.map(station => station['_id']);
-    return ids;
+    const strictOptions: Fuse.FuseOptions<StationNameWithId> = {
+      keys: ['normalizedName'],
+      id: '_id',
+      threshold: 0,
+    };
+    const looseOptions: Fuse.FuseOptions<StationNameWithId> = {
+      ...strictOptions,
+      threshold: 0.4,
+    };
+    const strictFuse = new Fuse(stationNamesWithIds, strictOptions);
+    const looseFuse = new Fuse(stationNamesWithIds, looseOptions);
+
+    const strictResultFullQuery = strictFuse.search(query) as string[];
+    if (strictResultFullQuery.length > 0) return strictResultFullQuery;
+
+    const trimmedQuery = query.split(' ').slice(undefined, -1).join(' ');
+    const strictResultTrimmedQuery = strictFuse.search(trimmedQuery) as string[];
+    if (strictResultTrimmedQuery.length > 0) return strictResultTrimmedQuery;
+
+    const looseResultFullQuery = looseFuse.search(query) as string[];
+    if (looseResultFullQuery.length > 0) return looseResultFullQuery;
+
+    const looseResultTrimmedQuery = looseFuse.search(trimmedQuery) as string[];
+    return looseResultTrimmedQuery;
   }
 }
