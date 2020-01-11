@@ -13,4 +13,6 @@ export {
   IWebParseService,
   IDbService,
   IRealTimeDepartureService,
+  IMatcherService,
+  IMatcherResponse,
 } from './service';

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import Fuse from 'fuse.js';
-import { StationNameWithId } from '../service/MatcherService';
+import { stringify } from 'querystring';
 
 describe('moment.js', () => {
   it('moment gives proper date format', () => {
@@ -16,6 +16,11 @@ describe('moment.js', () => {
 
 
 describe('fuse.js', () => {
+  interface StationNameWithId {
+    _id: string;
+    normalizedName: string;
+  }
+
   const list: StationNameWithId[] = [
     { _id: '6e11e094816a210d506bc920', normalizedName: '1 sierp' },
     { _id: '5e11e094816a210d506bc920', normalizedName: '1 sierpnia' },

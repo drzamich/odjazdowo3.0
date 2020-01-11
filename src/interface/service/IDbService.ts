@@ -1,9 +1,9 @@
-import { IZtmStation } from '../schema';
+import { IZtmStation, IStation } from '../schema';
 import { ZtmStation } from '../../schema';
 
 export interface IDbService {
+  getAllStations(): Promise<ZtmStation[]>;
+  getStationById(id: string): Promise<IStation[]>;
   saveStations(station: IZtmStation[]): void;
-  getAllStationNames(): Promise<any[]>;
-  getStations(normalizedName: string): Promise<ZtmStation[]>;
   deleteAllStations(): void;
 }

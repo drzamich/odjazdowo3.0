@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./build/Main.js",
-    "test": "jest",
+    "run": "tsc && node ./build/Main.js",
+    "test": "jest --watch --silent",
     "tsc": "tsc"
   },
   "author": "drzamich <drzamich@gmail.com>",

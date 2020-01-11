@@ -1,14 +1,9 @@
 import { injectable, inject } from 'inversify';
 
 import Fuse from 'fuse.js';
-import { IMatcherService } from '../interface/service/IMatcherService';
+import { IMatcherService, IDbService, IZtmStation, IZtmPlatform, IMatcherResponse } from '../interface';
 import { TYPES } from '../IoC/types';
-import { IDbService } from '../interface';
-
-export type StationNameWithId = {
-  _id: string;
-  normalizedName: string;
-};
+import { ZtmStation } from '../schema';
 
 @injectable()
 export class MatcherService implements IMatcherService {
@@ -16,40 +11,49 @@ export class MatcherService implements IMatcherService {
    @inject(TYPES.IDbService) private dbService: IDbService,
   ) {}
 
-  async matchStationOrPlatform(query: string): Promise<any[]> {
-    const matchedStationIds = await this.matchStationIds(query);
-    return matchedStationIds;
-    // if (matchedStations.length !== 1) {
-    //   return matchedStations;
-    // }
-    // const matchedPlatforms;
+  async matchStationsAndPlatforms(query: string): Promise<IMatcherResponse> {
+    const stations: IZtmStation[] = await this.matchStations(query);
+    let platforms: IZtmPlatform[] = [];
+    if (stations.length === 1) {
+      platforms = this.matchPlatforms(stations[0], query);
+    }
+    return {
+      stations,
+      platforms,
+    };
   }
 
-  public async matchStationIds(query: string): Promise<string[]> {
-    const stationNamesWithIds = await this.dbService.getAllStationNames() as StationNameWithId[];
-    const strictOptions: Fuse.FuseOptions<StationNameWithId> = {
+  private async matchStations(query: string): Promise<IZtmStation[]> {
+    const stations = await this.dbService.getAllStations() as IZtmStation[];
+    const strictOptions: Fuse.FuseOptions<IZtmStation> = {
       keys: ['normalizedName'],
-      id: '_id',
       threshold: 0,
     };
-    const looseOptions: Fuse.FuseOptions<StationNameWithId> = {
+    const looseOptions: Fuse.FuseOptions<IZtmStation> = {
       ...strictOptions,
       threshold: 0.4,
     };
-    const strictFuse = new Fuse(stationNamesWithIds, strictOptions);
-    const looseFuse = new Fuse(stationNamesWithIds, looseOptions);
+    const strictFuse = new Fuse(stations, strictOptions);
+    const looseFuse = new Fuse(stations, looseOptions);
 
-    const strictResultFullQuery = strictFuse.search(query) as string[];
+    const strictResultFullQuery = strictFuse.search(query) as IZtmStation[];
     if (strictResultFullQuery.length > 0) return strictResultFullQuery;
 
     const trimmedQuery = query.split(' ').slice(undefined, -1).join(' ');
-    const strictResultTrimmedQuery = strictFuse.search(trimmedQuery) as string[];
+    const strictResultTrimmedQuery = strictFuse.search(trimmedQuery) as IZtmStation[];
     if (strictResultTrimmedQuery.length > 0) return strictResultTrimmedQuery;
 
-    const looseResultFullQuery = looseFuse.search(query) as string[];
+    const looseResultFullQuery = looseFuse.search(query) as IZtmStation[];
     if (looseResultFullQuery.length > 0) return looseResultFullQuery;
 
-    const looseResultTrimmedQuery = looseFuse.search(trimmedQuery) as string[];
+    const looseResultTrimmedQuery = looseFuse.search(trimmedQuery) as IZtmStation[];
     return looseResultTrimmedQuery;
+  }
+
+  private matchPlatforms(station: ZtmStation, query: string): IZtmPlatform[] {
+    const lastWordOfQuery = query.split(' ').slice(-1);
+    const parsedLastWord = Number(lastWordOfQuery).toString().padStart(2, '0');
+    const matchingPlatform = station.platforms.filter(({ plNumber }) => plNumber === parsedLastWord)[0];
+    return (matchingPlatform ? [matchingPlatform] : station.platforms);
   }
 }

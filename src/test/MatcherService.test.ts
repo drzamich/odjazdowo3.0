@@ -3,34 +3,21 @@
 import 'reflect-metadata';
 import { MatcherService } from '../service/MatcherService';
 import { IDbService, IZtmStation } from '../interface';
+import { ztmStations } from './mocks/ztmStations';
 
 class DbSericeMock implements IDbService {
-  saveStations(station: IZtmStation[]): void {
+  getStationById(ztmId: string): Promise<IZtmStation[]> {
+    const station = ztmStations.find(st => st.ztmId === ztmId);
+    const result = station ? [station] : [];
+    return Promise.resolve(result);
+  }
+
+  saveStations(): void {
     throw new Error('Method not implemented.');
   }
 
-  async getAllStationNames(): Promise<any[]> {
-    return [
-      { _id: '5e11e094816a210d506bc920', normalizedName: '1 sierpnia' },
-      { _id: '5e11e094816a210d506bc924', normalizedName: '1 praskiego pulku' },
-      { _id: '5e11e094816a210d506bc929', normalizedName: '11 listopada' },
-      { _id: '5e11e094816a210d506bc92c', normalizedName: 'abrahama' },
-      { _id: '5e11e094816a210d506bc931', normalizedName: 'adamieckiego' },
-      { _id: '5e11e094816a210d506bc934', normalizedName: 'adampolska' },
-      { _id: '5e11e0as4816a210d506bc934', normalizedName: 'wola ratusz' },
-      { _id: '5e11e0af4816a210d506bc934', normalizedName: 'metro ratusz arsenal' },
-      { _id: '5e11e094816a210d506bc934', normalizedName: 'adampolska' },
-      { _id: '5e11e094816a210d506bc937', normalizedName: 'afrykanska' },
-      { _id: '5e11e094816a210d506bc93a', normalizedName: 'agrykola' },
-      { _id: '5e11e094816a210d506bc93d', normalizedName: 'akcent' },
-      { _id: '5e11e094816a210d506bc940', normalizedName: 'al 3 maja' },
-      { _id: '5u11e094816a210d506bc940', normalizedName: 'pkp wola' },
-      { _id: '5e11e094816a210d506bc940', normalizedName: 'pkp sluzew' },
-    ];
-  }
-
-  getStations(normalizedName: string): Promise<import('../schema').ZtmStation[]> {
-    throw new Error('Method not implemented.');
+  getAllStations(): Promise<IZtmStation[]> {
+    return Promise.resolve(ztmStations);
   }
 
   deleteAllStations(): void {
@@ -41,74 +28,70 @@ class DbSericeMock implements IDbService {
 const dbService = new DbSericeMock();
 const matcherService = new MatcherService(dbService);
 
-describe(`${MatcherService.name}#matchStationIds`, () => {
-  it('return empty list when query does not match anything', async () => {
+describe(MatcherService.name, () => {
+  it('returns empty lists when query does not match anything', async () => {
     // given
-    const query = 'sdfsdf';
-    const ids: string[] = [];
+    const query = 'siabadabada';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(0);
+    expect(platforms).toHaveLength(0);
   });
 
-  it('returns proper list of a single id when query matches one element', async () => {
+  it('returns single station and all its platforms when a query is precise', async () => {
     // given
-    const query = '11 listopada';
-    const ids = ['5e11e094816a210d506bc929'];
+    const query = '1 sierpnia';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(1);
+    expect(platforms).toHaveLength(3);
   });
 
-  it('returns proper list of a single id when query matches one element', async () => {
+  it('returns multiple stations and no platforms when query is not super precise', async () => {
     // given
-    const query = 'wola ratusz';
-    const ids = ['5e11e0as4816a210d506bc934'];
+    const query = 'al maja';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(2);
+    expect(stations[0].normalizedName).toEqual('al 3 maja');
+    expect(stations[1].normalizedName).toEqual('al 10 maja');
+    expect(platforms).toHaveLength(0);
   });
 
-  it('returns proper list of a single id when query matches one element', async () => {
+  it('returns a station and specific platform when query is specific', async () => {
     // given
-    const query = 'aleja 3 maja';
-    const ids = ['5e11e094816a210d506bc940'];
+    const query = 'al 3 maja 01';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(1);
+    expect(stations[0].normalizedName).toEqual('al 3 maja');
+    expect(platforms).toHaveLength(1);
+    expect(platforms[0].direction).toEqual('Ludna');
   });
 
-  it('returns proper list of a single id when query matches one element (platform number included)', async () => {
+  it('returns a station and all platforms when platform number is wrong', async () => {
     // given
-    const query = '11 listopada 05';
-    const ids = ['5e11e094816a210d506bc929'];
+    const query = 'al 3 maja 101';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(1);
+    expect(stations[0].normalizedName).toEqual('al 3 maja');
+    expect(platforms).toHaveLength(2);
   });
 
-  it('returns proper list of a multiple ids when query matches multiple elements', async () => {
+  it('returns a station and all platforms when user typed direction instead of platform number', async () => {
     // given
-    const query = '1';
-    const ids = ['5e11e094816a210d506bc920', '5e11e094816a210d506bc924', '5e11e094816a210d506bc929'];
+    const query = 'al 3 maja polnoc';
     // when
-    const result = await matcherService.matchStationIds(query);
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
     // then
-    expect(result).toEqual(ids);
-  });
-
-  it('returns proper list of a multiple ids when query matches multiple elements', async () => {
-    // given
-    const query = 'ratusz';
-    const ids = ['5e11e0as4816a210d506bc934', '5e11e0af4816a210d506bc934'];
-    // when
-    const result = await matcherService.matchStationIds(query);
-    // then
-    expect(result).toEqual(ids);
+    expect(stations).toHaveLength(1);
+    expect(stations[0].normalizedName).toEqual('al 3 maja');
+    expect(platforms).toHaveLength(2);
   });
 });
