@@ -13,11 +13,11 @@ export class GetController implements interfaces.Controller {
     @inject(TYPES.IDbService) private dbService: IDbService,
   ) { }
 
-  @httpGet('/platform')
+  @httpGet('/departures')
   private async platform(@queryParam('query') query: string, req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
     const normalizedQuery = normalizeString(query);
-    const matchedStationsAndPlatforms = await this.matcherService.matchStationsAndPlatforms(normalizedQuery);
+    const { stations, platforms } = await this.matcherService.matchStationsAndPlatforms(normalizedQuery);
     res.send(matchedStationsAndPlatforms);
   }
 

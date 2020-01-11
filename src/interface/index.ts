@@ -5,6 +5,9 @@ export {
   IZtmStation,
   IZtmPlatform,
   ZtmStationModel,
+  ILiveDeparture,
+  IIimetableDeparture,
+  IDepartureList,
 } from './schema';
 
 export {
@@ -15,4 +18,5 @@ export {
   IRealTimeDepartureService,
   IMatcherService,
   IMatcherResponse,
+  IDepartureService,
 } from './service';

@@ -5,3 +5,4 @@ export { IDbService } from './IDbService';
 export { IMatcherService } from './IMatcherService';
 export { IMatcherResponse } from './IMatcherService';
 export { IRealTimeDepartureService } from './IRealTimeDepartureService';
+export { IDepartureService } from './IDepartureService';
