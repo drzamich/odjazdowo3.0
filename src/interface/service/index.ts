@@ -4,5 +4,5 @@ export { IWebParseService } from './IWebParseService';
 export { IDbService } from './IDbService';
 export { IMatcherService } from './IMatcherService';
 export { IMatcherResponse } from './IMatcherService';
-export { IRealTimeDepartureService } from './IRealTimeDepartureService';
+export { ILiveDepartureService as IRealTimeDepartureService } from './ILiveDepartureService';
 export { IDepartureService } from './IDepartureService';

@@ -1,5 +1,5 @@
-import { IDepartureList, IPlatform } from '../schema';
+import { IDepartureList } from '../schema';
 
 export interface IDepartureService {
-  getDepartures(platform: IPlatform): Promise<IDepartureList>;
+  getDeparturesForPlatform(platformId: string): Promise<IDepartureList>;
 }

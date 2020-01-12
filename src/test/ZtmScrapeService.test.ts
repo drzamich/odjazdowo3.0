@@ -5,9 +5,8 @@ import 'reflect-metadata';
 import wtpAggregatePage from './mocks/wtpAggregatePage';
 import wtpPlatformPage from './mocks/wtpStationPage';
 import { ZtmScrapeService, WebParseService } from '../service';
-import { IWebFetchSerivce, IZtmStation, IRealTimeDepartureService, IDeparture } from '../interface';
-import { ZtmStation } from '../schema';
-import { Departure } from '../schema/Departure';
+import { IWebFetchSerivce, IZtmStation, IRealTimeDepartureService } from '../interface';
+import { ZtmStation, LiveDeparture, DepartureList } from '../schema';
 
 class AxiosMock implements IWebFetchSerivce {
   async get<T>(url: string): Promise<T> {
@@ -23,8 +22,8 @@ class SipTwServiceMock implements IRealTimeDepartureService {
     return ['709901', '709904'];
   }
 
-  async getDepartures(platformId: string): Promise<IDeparture[]> {
-    return [new Departure('10', 'Heaven', new Date())];
+  async getDeparturesForPlatform(): Promise<DepartureList> {
+    return new DepartureList('live', [new LiveDeparture('10', 'Foo', 10)]);
   }
 }
 

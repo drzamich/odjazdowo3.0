@@ -1,2 +1,3 @@
 export { ZtmStation } from './ztm/ZtmStation';
-export { Departure } from './Departure';
+export { DepartureList } from './DepartureList';
+export { LiveDeparture } from './LiveDeparture';
