@@ -27,13 +27,14 @@ export class SipTwService implements IRealTimeDepartureService {
 
   async getPlatformsList(): Promise<string[]> {
     const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=${this.userCode}&userApiKey=${this.apiKey}`;
-    const list = await this.webFetchService.get<PlatformDto[]>(url);
-    return list.map(val => val.StopId);
+    const platformsFromApi = await this.webFetchService.get<PlatformDto[]>(url);
+    return (platformsFromApi ? platformsFromApi.map(({ StopId }) => StopId) : []);
   }
 
   async getDeparturesForPlatform(platformId: string): Promise<IDepartureList> {
     const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${this.apiKey}&stopId=${platformId}`;
     const departuresFromApi = await this.webFetchService.get<DepartureDto[]>(url);
+    if (!departuresFromApi) return new DepartureList('live', []);
     const departures = departuresFromApi.map(departureFromApi => {
       return new LiveDeparture(
         departureFromApi.Line,

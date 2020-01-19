@@ -16,7 +16,17 @@ export class DoController implements interfaces.Controller {
   private async scrape(req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
     const stations = await this.scrapeService.scapeTimetable() as IZtmStation[];
-    this.dbService.saveStations(stations);
+    if (stations.length) {
+      const deleteProcess = this.dbService.deleteAllStations();
+      if (deleteProcess) {
+        const saveProcess = this.dbService.saveStations(stations);
+        if (saveProcess) {
+          res.send('Scraping process completed.');
+          return;
+        }
+      }
+    }
+    res.send('Scraping process failed.');
   }
 
   @httpGet('/clearDb')

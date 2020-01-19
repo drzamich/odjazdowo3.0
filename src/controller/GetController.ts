@@ -18,7 +18,7 @@ export class GetController implements interfaces.Controller {
     console.log(req.method, req.originalUrl, res.statusCode);
     const normalizedQuery = normalizeString(query);
     const { stations, platforms } = await this.matcherService.matchStationsAndPlatforms(normalizedQuery);
-    res.send(matchedStationsAndPlatforms);
+    res.send(stations);
   }
 
   @httpGet('/allStations')

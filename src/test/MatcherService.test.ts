@@ -12,7 +12,7 @@ class DbSericeMock implements IDbService {
     return Promise.resolve(result);
   }
 
-  saveStations(): void {
+  async saveStations(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
@@ -20,7 +20,7 @@ class DbSericeMock implements IDbService {
     return Promise.resolve(ztmStations);
   }
 
-  deleteAllStations(): void {
+  async deleteAllStations(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 }

@@ -24,6 +24,10 @@ export class ZtmScrapeService implements ITimetableScrapeService {
     const aggregateUrl = this.generateAggregateUrl();
     console.log(`Fetching list of stations from ${aggregateUrl} ...`);
     const fetchedWebsite = await this.webFetchService.get<string>(aggregateUrl);
+    if (!fetchedWebsite) {
+      console.log('Could not fetch list of stations from ZTM.');
+      return [];
+    }
     console.log('List of stations fetched. Parsing...');
     const $ = this.webParseService.parseHTMLString(fetchedWebsite);
     const links = $('.timetable-stops-block-body-item a');
@@ -56,8 +60,7 @@ export class ZtmScrapeService implements ITimetableScrapeService {
       const fetchedWebsite = await this.webFetchService.get<string>(url);
       if (!fetchedWebsite) {
         console.log(`Could not get platforms for station ${name}`);
-        // eslint-disable-next-line no-continue
-        continue;
+        return [];
       }
       const $ = this.webParseService.parseHTMLString(fetchedWebsite);
       const links = $('.timetable-link');
@@ -77,6 +80,9 @@ export class ZtmScrapeService implements ITimetableScrapeService {
     }
     const success = result.length;
     const failure = emptyStations.length - success;
+    if (failure) {
+      return [];
+    }
     console.log(`Platforms fetching completed. Success: ${success}. Failure: ${failure}`);
     return result;
   }

@@ -20,7 +20,7 @@ export class WebFetchService implements IWebFetchSerivce {
           console.log(`Error when fetching ${url}. ${error.message}`);
         }
         console.log(error.config);
-        return false;
+        return null;
       });
     return response;
   }
