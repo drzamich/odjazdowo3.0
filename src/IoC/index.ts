@@ -1,10 +1,11 @@
 import { Container } from 'inversify';
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IDbService, IRealTimeDepartureService } from '../interface';
+import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IDbService, IRealTimeDepartureService, IDepartureAggregator } from '../interface';
 import { ZtmScrapeService, WebFetchService, WebParseService, DbService, SipTwService } from '../service';
 import { TYPES } from './types';
 import { DoController, GetController } from '../controller';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { MatcherService } from '../service/MatcherService';
+import { DepartureAggregator } from '../service/DepartureAggregator';
 
 const container = new Container();
 
@@ -16,5 +17,6 @@ container.bind<IWebFetchSerivce>(TYPES.IWebFetchService).to(WebFetchService).inS
 container.bind<IWebParseService>(TYPES.IWebParseService).to(WebParseService).inSingletonScope();
 container.bind<IDbService>(TYPES.IDbService).to(DbService).inSingletonScope();
 container.bind<IMatcherService>(TYPES.IMatcherService).to(MatcherService).inSingletonScope();
+container.bind<IDepartureAggregator>(TYPES.IDepartureAggregator).to(DepartureAggregator).inSingletonScope();
 
 export { container };

@@ -19,4 +19,5 @@ export {
   IMatcherService,
   IMatcherResponse,
   IDepartureService,
+  IDepartureAggregator,
 } from './service';

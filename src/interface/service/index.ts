@@ -6,3 +6,4 @@ export { IMatcherService } from './IMatcherService';
 export { IMatcherResponse } from './IMatcherService';
 export { ILiveDepartureService as IRealTimeDepartureService } from './ILiveDepartureService';
 export { IDepartureService } from './IDepartureService';
+export { IDepartureAggregator } from './IDepartureAggregator';

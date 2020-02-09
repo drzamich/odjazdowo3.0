@@ -8,4 +8,5 @@ export const TYPES = {
   GetController: Symbol.for('GetController'),
   IRealTimeDepartureService: Symbol.for('IRealTimeDepartureService'),
   IMatcherService: Symbol.for('IMatcherService'),
+  IDepartureAggregator: Symbol.for('IDepartureAggregator'),
 };
