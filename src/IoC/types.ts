@@ -9,4 +9,6 @@ export const TYPES = {
   IRealTimeDepartureService: Symbol.for('IRealTimeDepartureService'),
   IMatcherService: Symbol.for('IMatcherService'),
   IDepartureAggregator: Symbol.for('IDepartureAggregator'),
+  IMessagePreparator: Symbol.for('IMessagePreparator'),
+  IResponsePreparator: Symbol.for('IResponsePreparator'),
 };
