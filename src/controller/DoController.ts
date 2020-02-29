@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { interfaces, controller, httpGet } from 'inversify-express-utils';
+import { interfaces, controller, httpGet, queryParam } from 'inversify-express-utils';
 import { inject } from 'inversify';
 import { TYPES } from '../IoC/types';
 import { IDbService, ITimetableScrapeService, IZtmStation } from '../interface';
+import { TOKEN } from '../config';
 
 @controller('/do')
 export class DoController implements interfaces.Controller {
@@ -13,8 +14,12 @@ export class DoController implements interfaces.Controller {
   ) { }
 
   @httpGet('/scrapeAndSave')
-  private async scrape(req: Request, res: Response): Promise<void> {
+  private async scrape(@queryParam('token') token: string, req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
+    if (token !== TOKEN) {
+      res.send('Access denied');
+      return;
+    }
     const stations = await this.scrapeService.scapeTimetable() as IZtmStation[];
     if (stations.length) {
       const deleteProcess = this.dbService.deleteAllStations();
@@ -30,8 +35,13 @@ export class DoController implements interfaces.Controller {
   }
 
   @httpGet('/clearDb')
-  private deleteStations(req: Request, res: Response): void {
+  private deleteStations(@queryParam('token') token: string, req: Request, res: Response): void {
+    if (token !== TOKEN) {
+      res.send('Access denied');
+      return;
+    }
     console.log(req.method, req.originalUrl, res.statusCode);
     this.dbService.deleteAllStations();
+    res.send('Database cleared.');
   }
 }
