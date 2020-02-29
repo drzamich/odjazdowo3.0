@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import { injectable } from 'inversify';
 import { IMessagePreparator, IMessage, IStrings, IQuickReply } from '../interface/response';
 import { IZtmStation, IDepartureList, IZtmPlatform, IStation, IPlatform } from '../interface';
 import { strings } from './strings';
 
+@injectable()
 export class MessagePreparator implements IMessagePreparator {
   public strings: IStrings = strings.en;
 

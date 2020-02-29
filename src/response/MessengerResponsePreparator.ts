@@ -1,8 +1,9 @@
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { IResponsePreparator, IMessagePreparator, IMessengerResponse, IMessage } from '../interface/response';
 import { TYPES } from '../IoC/types';
 import { IZtmStation, IZtmPlatform, IDepartureList } from '../interface';
 
+@injectable()
 export class MessengerResponsePreparator implements IResponsePreparator {
   constructor(
     @inject(TYPES.IMessagePreparator) public messagePreparator: IMessagePreparator,
