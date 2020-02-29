@@ -2,7 +2,7 @@ import { Container } from 'inversify';
 import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IDbService, IRealTimeDepartureService, IDepartureAggregator } from '../interface';
 import { ZtmScrapeService, WebFetchService, WebParseService, DbService, SipTwService } from '../service';
 import { TYPES } from './types';
-import { DoController, GetController } from '../controller';
+import { DoController, GetController, MainController } from '../controller';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { MatcherService } from '../service/MatcherService';
 import { DepartureAggregator } from '../service/DepartureAggregator';
@@ -13,7 +13,8 @@ import { MessengerResponsePreparator } from '../response/MessengerResponsePrepar
 const container = new Container();
 
 container.bind<DoController>(TYPES.DoController).to(DoController).inSingletonScope();
-container.bind<GetController>(TYPES.DoController).to(GetController).inSingletonScope();
+container.bind<GetController>(TYPES.GetController).to(GetController).inSingletonScope();
+container.bind<MainController>(TYPES.MainController).to(MainController).inSingletonScope();
 container.bind<ITimetableScrapeService>(TYPES.ITimetableScrapeService).to(ZtmScrapeService).inSingletonScope();
 container.bind<IRealTimeDepartureService>(TYPES.IRealTimeDepartureService).to(SipTwService).inSingletonScope();
 container.bind<IWebFetchSerivce>(TYPES.IWebFetchService).to(WebFetchService).inSingletonScope();

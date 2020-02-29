@@ -9,9 +9,7 @@ const server = new InversifyExpressServer(container);
 
 const app = server.build();
 
-const HOST = '0.0.0.0';
-
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }).then(
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, dbName: 'odjazdowo' }).then(
   () => {
     console.log('Connected to the database');
   },
@@ -19,4 +17,4 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true, use
   console.log('MongoDB connection error. Please make sure MongoDB is running. ', err);
 });
 
-app.listen(PORT, HOST, () => { console.log(`Server started at ${HOST}:${PORT}`); });
+app.listen(PORT, () => { console.log(`Listenin on port ${PORT}`); });

@@ -6,6 +6,7 @@ export const TYPES = {
   IDbService: Symbol.for('IDbService'),
   DoController: Symbol.for('DoController'),
   GetController: Symbol.for('GetController'),
+  MainController: Symbol.for('MainController'),
   IRealTimeDepartureService: Symbol.for('IRealTimeDepartureService'),
   IMatcherService: Symbol.for('IMatcherService'),
   IDepartureAggregator: Symbol.for('IDepartureAggregator'),
