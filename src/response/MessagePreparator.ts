@@ -4,20 +4,23 @@ import { IZtmStation, IDepartureList, IZtmPlatform, IStation, IPlatform } from '
 import { strings } from './strings';
 
 export class MessagePreparator implements IMessagePreparator {
-  public strings: IStrings;
+  public strings: IStrings = strings.en;
 
-  constructor(public locale: string = 'en') {
+  prepareInitialMessages(locale = 'en', stations: IZtmStation[], platforms: IZtmPlatform[]): IMessage[] {
     this.strings = locale === 'en' ? strings.en : strings.pl;
-  }
-
-  prepareInitialResponses(stations: IZtmStation[], platforms: IZtmPlatform[]): IMessage[] {
     const stationMessages: IMessage[] = this.prepareStationResponse(stations);
     const platformMessages: IMessage[] = this.preparePlatformResponse(stations, platforms);
     return [...stationMessages, ...platformMessages];
   }
 
-  prepareDepartureResponse(departures: IDepartureList): IMessage[] {
-    return [];
+  prepareDepartureMessages(locale = 'en', departureList: IDepartureList): IMessage[] {
+    this.strings = locale === 'en' ? strings.en : strings.pl;
+    switch (departureList.departures.length) {
+      case 0:
+        return [{ text: this.strings.departures_not_available }];
+      default:
+        return [{ text: departureList.getCombinedText() }];
+    }
   }
 
   private prepareStationResponse(stations: IStation[]): IMessage[] {

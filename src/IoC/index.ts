@@ -6,6 +6,8 @@ import { DoController, GetController } from '../controller';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { MatcherService } from '../service/MatcherService';
 import { DepartureAggregator } from '../service/DepartureAggregator';
+import { IMessagePreparator } from '../interface/response';
+import { MessagePreparator } from '../response/MessagePreparator';
 
 const container = new Container();
 
@@ -18,5 +20,6 @@ container.bind<IWebParseService>(TYPES.IWebParseService).to(WebParseService).inS
 container.bind<IDbService>(TYPES.IDbService).to(DbService).inSingletonScope();
 container.bind<IMatcherService>(TYPES.IMatcherService).to(MatcherService).inSingletonScope();
 container.bind<IDepartureAggregator>(TYPES.IDepartureAggregator).to(DepartureAggregator).inSingletonScope();
+container.bind<IMessagePreparator>(TYPES.IMessagePreparator).to(MessagePreparator);
 
 export { container };
