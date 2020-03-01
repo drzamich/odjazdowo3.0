@@ -33,6 +33,7 @@ module.exports = {
         "max-len": "warn",
         "object-curly-newline": "off",
         "no-await-in-loop": "off",
-        "arrow-body-style": "off"
+        "arrow-body-style": "off",
+        "no-restricted-syntax": "off"
     }
 };

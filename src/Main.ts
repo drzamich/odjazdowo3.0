@@ -2,10 +2,19 @@ import 'reflect-metadata';
 
 import mongoose from 'mongoose';
 import { InversifyExpressServer } from 'inversify-express-utils';
+import * as bodyParser from 'body-parser';
 import { container } from './IoC';
 import { PORT, MONGODB_URI } from './config';
 
 const server = new InversifyExpressServer(container);
+
+server.setConfig(app => {
+  // add body parser
+  app.use(bodyParser.urlencoded({
+    extended: true,
+  }));
+  app.use(bodyParser.json());
+});
 
 const app = server.build();
 
