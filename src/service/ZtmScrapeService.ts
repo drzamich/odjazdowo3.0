@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import moment from 'moment';
 
-import { ITimetableScrapeService, IWebFetchSerivce, IWebParseService, IZtmStation, IZtmPlatform, IRealTimeDepartureService } from '../interface';
+import { ITimetableScrapeService, IHttpService, IWebParseService, IZtmStation, IZtmPlatform, IRealTimeDepartureService } from '../interface';
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
@@ -9,7 +9,7 @@ import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
 @injectable()
 export class ZtmScrapeService implements ITimetableScrapeService {
   constructor(
-    @inject(TYPES.IWebFetchService) private webFetchService: IWebFetchSerivce,
+    @inject(TYPES.IHttpService) private httpService: IHttpService,
     @inject(TYPES.IWebParseService) private webParseService: IWebParseService,
     @inject(TYPES.IRealTimeDepartureService) private sipTwService: IRealTimeDepartureService,
   ) {}
@@ -23,7 +23,7 @@ export class ZtmScrapeService implements ITimetableScrapeService {
   public async getEmptyStations(): Promise<IZtmStation[]> {
     const aggregateUrl = this.generateAggregateUrl();
     console.log(`Fetching list of stations from ${aggregateUrl} ...`);
-    const fetchedWebsite = await this.webFetchService.get<string>(aggregateUrl);
+    const fetchedWebsite = await this.httpService.get<string>(aggregateUrl);
     if (!fetchedWebsite) {
       console.log('Could not fetch list of stations from ZTM.');
       return [];
@@ -57,7 +57,7 @@ export class ZtmScrapeService implements ITimetableScrapeService {
     for (let i = 0; i < len; i++) {
       const { name, url, ztmId } = emptyStations[i];
       console.log(`Fetching platforms for station '${name}' ...`);
-      const fetchedWebsite = await this.webFetchService.get<string>(url);
+      const fetchedWebsite = await this.httpService.get<string>(url);
       if (!fetchedWebsite) {
         console.log(`Could not get platforms for station ${name}`);
         return [];

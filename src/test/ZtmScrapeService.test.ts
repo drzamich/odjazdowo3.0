@@ -5,15 +5,19 @@ import 'reflect-metadata';
 import wtpAggregatePage from './mocks/wtpAggregatePage';
 import wtpPlatformPage from './mocks/wtpStationPage';
 import { ZtmScrapeService, WebParseService } from '../service';
-import { IWebFetchSerivce, IZtmStation, IRealTimeDepartureService } from '../interface';
+import { IHttpService, IZtmStation, IRealTimeDepartureService } from '../interface';
 import { ZtmStation, LiveDeparture, DepartureList } from '../schema';
 
-class AxiosMock implements IWebFetchSerivce {
+class AxiosMock implements IHttpService {
   async get<T>(url: string): Promise<T> {
     if (url.includes('wtp_dy')) {
       return wtpPlatformPage as unknown as T;
     }
     return wtpAggregatePage as unknown as T;
+  }
+
+  async post(url: string, body: object): Promise<void> {
+
   }
 }
 

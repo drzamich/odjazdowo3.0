@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 
-import { IWebFetchSerivce, IRealTimeDepartureService, IDepartureList } from '../interface';
+import { IHttpService, IRealTimeDepartureService, IDepartureList } from '../interface';
 import { TYPES } from '../IoC/types';
 import { LiveDeparture } from '../schema/LiveDeparture';
 import { DepartureList } from '../schema/DepartureList';
@@ -22,18 +22,18 @@ export class SipTwService implements IRealTimeDepartureService {
   private apiKey = '3aAhqA2/*RWsmvy}P8AsxgtFZ';
 
   constructor(
-    @inject(TYPES.IWebFetchService) private webFetchService: IWebFetchSerivce,
+    @inject(TYPES.IHttpService) private httpService: IHttpService,
   ) {}
 
   async getPlatformsList(): Promise<string[]> {
     const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=${this.userCode}&userApiKey=${this.apiKey}`;
-    const platformsFromApi = await this.webFetchService.get<PlatformDto[]>(url);
+    const platformsFromApi = await this.httpService.get<PlatformDto[]>(url);
     return (platformsFromApi ? platformsFromApi.map(({ StopId }) => StopId) : []);
   }
 
   async getDeparturesForPlatform(platformId: string): Promise<IDepartureList> {
     const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${this.apiKey}&stopId=${platformId}`;
-    const departuresFromApi = await this.webFetchService.get<DepartureDto[]>(url);
+    const departuresFromApi = await this.httpService.get<DepartureDto[]>(url);
     if (!departuresFromApi) return new DepartureList('live', []);
     const departures = departuresFromApi.map(departureFromApi => {
       return new LiveDeparture(

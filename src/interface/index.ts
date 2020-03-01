@@ -12,7 +12,7 @@ export {
 
 export {
   ITimetableScrapeService,
-  IWebFetchSerivce,
+  IHttpService,
   IWebParseService,
   IDbService,
   IRealTimeDepartureService,

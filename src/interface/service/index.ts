@@ -1,5 +1,5 @@
 export { ITimetableScrapeService } from './ITimetableScrapeService';
-export { IWebFetchSerivce } from './IWebFetchService';
+export { IHttpService } from './IHttpService';
 export { IWebParseService } from './IWebParseService';
 export { IDbService } from './IDbService';
 export { IMatcherService } from './IMatcherService';
