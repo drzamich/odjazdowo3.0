@@ -6,7 +6,7 @@ import { DoController, GetController, MainController } from '../controller';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { MatcherService } from '../service/MatcherService';
 import { DepartureAggregator } from '../service/DepartureAggregator';
-import { IMessagePreparator, IResponsePreparator } from '../interface/response';
+import { IMessagePreparator, IResponsePreparator } from '../interface/messaging';
 import { MessagePreparator } from '../response/MessagePreparator';
 import { MessengerResponsePreparator } from '../response/MessengerResponsePreparator';
 

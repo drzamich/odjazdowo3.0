@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { IResponsePreparator, IMessagePreparator, IMessengerResponse, IMessage } from '../interface/response';
+import { IResponsePreparator, IMessagePreparator, IMessengerResponse, IMessage } from '../interface/messaging';
 import { TYPES } from '../IoC/types';
 import { IZtmStation, IZtmPlatform, IDepartureList } from '../interface';
 

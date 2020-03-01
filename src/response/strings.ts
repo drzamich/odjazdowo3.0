@@ -1,4 +1,4 @@
-import { IStrings } from '../interface/response';
+import { IStrings } from '../interface/messaging';
 
 const pl: IStrings = {
   station_not_found: 'Nie znaleziono stacji.',
