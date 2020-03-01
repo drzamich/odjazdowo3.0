@@ -42,11 +42,11 @@ export class GetController implements interfaces.Controller {
     console.log(req.method, req.originalUrl, res.statusCode);
     body.entry.forEach(async entry => {
       const senderId = entry.messaging[0].sender.id;
-      const query = entry.messaging[0].message.text;
-      const respones: IResponse[] = await this.handleQuery(senderId, 'en', query);
-      respones.forEach(async response => {
-        await this.responseSender.sendResponse(response);
-      });
+      const query = entry.messaging[0].message.quick_reply?.payload || entry.messaging[0].message.text;
+      const responses: IResponse[] = await this.handleQuery(senderId, 'en', query);
+      for (let i = 0; i < responses.length; i += 1) {
+        await this.responseSender.sendResponse(responses[i]);
+      }
     });
   }
 
