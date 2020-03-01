@@ -12,4 +12,5 @@ export const TYPES = {
   IDepartureAggregator: Symbol.for('IDepartureAggregator'),
   IMessagePreparator: Symbol.for('IMessagePreparator'),
   IResponsePreparator: Symbol.for('IResponsePreparator'),
+  IResponseSender: Symbol.for('IResponseSender'),
 };

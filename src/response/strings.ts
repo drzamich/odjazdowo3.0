@@ -14,7 +14,7 @@ const pl: IStrings = {
   try_again: 'Spróbuj ponownie',
   departures_for: 'Odjazdy dla:',
   direction_short: 'kier.',
-  platform: 'peron',
+  platform: 'Peron',
 };
 
 const en: IStrings = {
@@ -29,9 +29,9 @@ const en: IStrings = {
   choose_one_platform: 'Choose the platform',
   choose_one_station: 'Choose the station',
   try_again: 'Try again',
-  departures_for: 'Departures for:',
+  departures_for: 'Departures for',
   direction_short: 'dir.',
-  platform: 'paltform',
+  platform: 'Platform',
 };
 
 export const strings = {

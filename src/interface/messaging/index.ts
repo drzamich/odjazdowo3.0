@@ -8,3 +8,4 @@ export { IResponse } from './IResponse';
 export { IResponsePreparator } from './IResponsePreparator';
 export { IStrings } from './IStrings';
 export { IMessengerWebhookEvent } from './IMessengerWebhookEvent';
+export { IResponseSender } from './IResponseSender';

@@ -5,6 +5,8 @@ import { IMatcherService, IDbService, IZtmStation, IZtmPlatform, IMatcherRespons
 import { TYPES } from '../IoC/types';
 import { ZtmStation } from '../schema';
 
+export const MAX_MATCHED_STATIONS = 5;
+
 @injectable()
 export class MatcherService implements IMatcherService {
   constructor(
@@ -12,7 +14,8 @@ export class MatcherService implements IMatcherService {
   ) {}
 
   async matchStationsAndPlatforms(query: string): Promise<IMatcherResponse> {
-    const stations: IZtmStation[] = await this.matchStations(query);
+    let stations: IZtmStation[] = await this.matchStations(query);
+    stations = stations.slice(0, MAX_MATCHED_STATIONS);
     let platforms: IZtmPlatform[] = [];
     if (stations.length === 1) {
       platforms = this.matchPlatforms(stations[0], query);
@@ -27,26 +30,30 @@ export class MatcherService implements IMatcherService {
     const stations = await this.dbService.getAllStations() as IZtmStation[];
     const strictOptions: Fuse.FuseOptions<IZtmStation> = {
       keys: ['normalizedName'],
+      findAllMatches: false,
       threshold: 0,
     };
     const looseOptions: Fuse.FuseOptions<IZtmStation> = {
       ...strictOptions,
-      threshold: 0.4,
+      threshold: 0.1,
     };
     const strictFuse = new Fuse(stations, strictOptions);
     const looseFuse = new Fuse(stations, looseOptions);
 
     const strictResultFullQuery = strictFuse.search(query) as IZtmStation[];
-    if (strictResultFullQuery.length > 0) return strictResultFullQuery;
+    if (strictResultFullQuery.length === 1) return strictResultFullQuery;
+    if (strictResultFullQuery.length > 1) return this.chooseBestOfBest(query, strictResultFullQuery);
 
-    const trimmedQuery = query.split(' ').slice(undefined, -1).join(' ');
-    const strictResultTrimmedQuery = strictFuse.search(trimmedQuery) as IZtmStation[];
-    if (strictResultTrimmedQuery.length > 0) return strictResultTrimmedQuery;
+    const queryWithoutLastWord = query.split(' ').slice(undefined, -1).join(' ');
+    const strictResultTrimmedQuery = strictFuse.search(queryWithoutLastWord) as IZtmStation[];
+    if (strictResultTrimmedQuery.length === 1) return strictResultTrimmedQuery;
+    if (strictResultTrimmedQuery.length > 1) return this.chooseBestOfBest(query, strictResultTrimmedQuery);
+
 
     const looseResultFullQuery = looseFuse.search(query) as IZtmStation[];
     if (looseResultFullQuery.length > 0) return looseResultFullQuery;
 
-    const looseResultTrimmedQuery = looseFuse.search(trimmedQuery) as IZtmStation[];
+    const looseResultTrimmedQuery = looseFuse.search(queryWithoutLastWord) as IZtmStation[];
     return looseResultTrimmedQuery;
   }
 
@@ -55,5 +62,16 @@ export class MatcherService implements IMatcherService {
     const parsedLastWord = Number(lastWordOfQuery).toString().padStart(2, '0');
     const matchingPlatform = station.platforms.filter(({ plNumber }) => plNumber === parsedLastWord)[0];
     return (matchingPlatform ? [matchingPlatform] : station.platforms);
+  }
+
+  private chooseBestOfBest(query: string, stations: IZtmStation[]): IZtmStation[] {
+    const queryWithoutLastWord = query.split(' ').slice(undefined, -1).join(' ');
+    for (const station of stations) {
+      if (query === station.normalizedName) return [station];
+    }
+    for (const station of stations) {
+      if (queryWithoutLastWord === station.normalizedName) return [station];
+    }
+    return stations;
   }
 }

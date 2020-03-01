@@ -1,9 +1,9 @@
 
 /* eslint-disable max-classes-per-file */
 import 'reflect-metadata';
-import { MatcherService } from '../service/MatcherService';
+import { MatcherService, MAX_MATCHED_STATIONS } from '../service/MatcherService';
 import { IDbService, IZtmStation } from '../interface';
-import { ztmStations } from './mocks/ztmStations';
+import ztmStations from './mocks/ztmStations';
 
 class DbSericeMock implements IDbService {
   getStationById(ztmId: string): Promise<IZtmStation[]> {
@@ -49,15 +49,15 @@ describe(MatcherService.name, () => {
     expect(platforms).toHaveLength(3);
   });
 
-  it('returns multiple stations and no platforms when query is not super precise', async () => {
+  it('returns limited number of suggestions when query is not suepr precise', async () => {
     // given
     const query = 'al maja';
     // when
     const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
+    const stationNames = stations.map(({ name }) => name);
     // then
-    expect(stations).toHaveLength(2);
+    expect(stationNames).toHaveLength(MAX_MATCHED_STATIONS);
     expect(stations[0].normalizedName).toEqual('al 3 maja');
-    expect(stations[1].normalizedName).toEqual('al 10 maja');
     expect(platforms).toHaveLength(0);
   });
 
@@ -93,5 +93,27 @@ describe(MatcherService.name, () => {
     expect(stations).toHaveLength(1);
     expect(stations[0].normalizedName).toEqual('al 3 maja');
     expect(platforms).toHaveLength(2);
+  });
+
+  it('returns just `Muranow` when query is `Muranow`', async () => {
+    // given
+    const query = 'muranow';
+    // when
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
+    // then
+    const stationNames = stations.map(({ name }) => name);
+    expect(stationNames).toHaveLength(1);
+    expect(stationNames[0]).toEqual('Muranów');
+  });
+
+  it.only('returns proper station and platform `Muranow 06` when query is `Muranow 06`', async () => {
+    // given
+    const query = 'muranow 06';
+    // when
+    const { stations, platforms } = await matcherService.matchStationsAndPlatforms(query);
+    // then
+    const stationNames = stations.map(({ name }) => name);
+    expect(stationNames).toHaveLength(1);
+    expect(stationNames[0]).toEqual('Muranów');
   });
 });

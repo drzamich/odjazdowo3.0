@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Fuse from 'fuse.js';
-import { stringify } from 'querystring';
 
 describe('moment.js', () => {
   it('moment gives proper date format', () => {
