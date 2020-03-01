@@ -13,6 +13,6 @@ export class MessengerResponseSender implements IResponseSender {
 
   async sendResponse(response: IResponse): Promise<void> {
     const url = `https://graph.facebook.com/v6.0/me/messages?access_token=${MESSENGER_TOKEN}`;
-    this.httpService.post(url, response);
+    await this.httpService.post(url, response);
   }
 }

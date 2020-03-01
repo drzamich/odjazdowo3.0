@@ -40,7 +40,6 @@ export class GetController implements interfaces.Controller {
   @httpPost('/')
   private async handlePost(@requestBody() body: IMessengerWebhookEvent, req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
-    console.dir(body);
     body.entry.forEach(async entry => {
       const senderId = entry.messaging[0].sender.id;
       const query = entry.messaging[0].message.text;
