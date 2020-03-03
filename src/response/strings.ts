@@ -15,6 +15,7 @@ const pl: IStrings = {
   departures_for: 'Odjazdy dla:',
   direction_short: 'kier.',
   platform: 'Peron',
+  platform_not_in_system: 'Przystanek obecnie niedostępny w systemie.',
 };
 
 const en: IStrings = {
@@ -32,6 +33,7 @@ const en: IStrings = {
   departures_for: 'Departures for',
   direction_short: 'dir.',
   platform: 'Platform',
+  platform_not_in_system: 'Sorry, this platform is currently not in the system.',
 };
 
 export const strings = {

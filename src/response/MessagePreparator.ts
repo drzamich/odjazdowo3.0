@@ -17,11 +17,18 @@ export class MessagePreparator implements IMessagePreparator {
 
   prepareDepartureMessages(locale = 'en', departureList: IDepartureList): IMessage[] {
     this.strings = locale === 'en' ? strings.en : strings.pl;
-    switch (departureList.departures.length) {
-      case 0:
-        return [{ text: this.strings.departures_not_available }];
+    switch (departureList.type) {
+      case 'notInSystem':
+        return [{ text: this.strings.platform_not_in_system }];
+      case 'live':
+        switch (departureList.departures.length) {
+          case 0:
+            return [{ text: this.strings.no_close_departures }];
+          default:
+            return [{ text: departureList.getCombinedText() }];
+        }
       default:
-        return [{ text: departureList.getCombinedText() }];
+        return [{ text: this.strings.departures_not_available }];
     }
   }
 

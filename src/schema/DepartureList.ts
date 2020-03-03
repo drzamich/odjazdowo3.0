@@ -2,7 +2,7 @@ import { IDepartureList, IDeparture } from '../interface';
 
 export class DepartureList implements IDepartureList {
   constructor(
-    public type: string,
+    public type: 'live' | 'timetable' | 'notInSystem' | 'error',
     public departures: IDeparture[],
   ) {}
 

@@ -15,6 +15,6 @@ export class DepartureAggregator implements IDepartureAggregator {
     if (platform.isInSipTw) {
       return this.realTimeDepartureService.getDeparturesForPlatform(platformId);
     }
-    return new DepartureList('none', []);
+    return new DepartureList('notInSystem', []);
   }
 }

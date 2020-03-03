@@ -1,7 +1,7 @@
 import { IDeparture } from './IDeparture';
 
 export interface IDepartureList {
-  type: string;
+  type: 'live' | 'timetable' | 'notInSystem' | 'error';
   departures: IDeparture[];
   getCombinedText(): string;
 }

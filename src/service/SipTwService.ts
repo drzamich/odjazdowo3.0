@@ -34,7 +34,7 @@ export class SipTwService implements IRealTimeDepartureService {
   async getDeparturesForPlatform(platformId: string): Promise<IDepartureList> {
     const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${this.apiKey}&stopId=${platformId}`;
     const departuresFromApi = await this.httpService.get<DepartureDto[]>(url);
-    if (!departuresFromApi) return new DepartureList('live', []);
+    if (!departuresFromApi) return new DepartureList('error', []);
     const departures = departuresFromApi.map(departureFromApi => {
       return new LiveDeparture(
         departureFromApi.Line,

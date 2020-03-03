@@ -13,4 +13,5 @@ export interface IStrings {
   choose_one_station: string;
   direction_short: string;
   platform: string;
+  platform_not_in_system: string;
 }
