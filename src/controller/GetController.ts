@@ -1,16 +1,20 @@
 import { Request, Response } from 'express';
-import { interfaces, controller, httpGet, queryParam, httpPost, requestBody, requestParam } from 'inversify-express-utils';
+import { interfaces, controller, httpGet, httpPost, requestBody, requestParam } from 'inversify-express-utils';
 import { inject } from 'inversify';
 import { TYPES } from '../IoC/types';
 import { normalizeString } from '../utils';
 import { IMatcherService } from '../interface/service/IMatcherService';
 import { IDbService, IDepartureAggregator } from '../interface';
-import { DepartureList } from '../schema';
 import { IResponsePreparator, IResponse, IMessengerWebhookEvent, IResponseSender } from '../interface/messaging';
 import { MESSENGER_TOKEN, TEST_USER_ID } from '../config';
 
+type senderFunction = (responses: IResponse[], isFinal?: boolean) => Promise<void>;
 @controller('/get')
 export class GetController implements interfaces.Controller {
+  private expressResponse = undefined as unknown as Response;
+
+  private savedResponses: IResponse[] = [];
+
   constructor(
     @inject(TYPES.IMatcherService) private matcherService: IMatcherService,
     @inject(TYPES.IDbService) private dbService: IDbService,
@@ -43,19 +47,18 @@ export class GetController implements interfaces.Controller {
     body.entry.forEach(async entry => {
       const senderId = entry.messaging[0].sender.id;
       const query = entry.messaging[0].message.quick_reply?.payload || entry.messaging[0].message.text;
-      const responses: IResponse[] = await this.handleQuery(senderId, 'en', query);
-      for (let i = 0; i < responses.length; i += 1) {
-        await this.responseSender.sendResponse(responses[i]);
-      }
+      console.log({ senderId, query });
+      await this.handleQuery(senderId, 'en', query, this.sendResponsesToMessengerApi);
     });
   }
 
   @httpGet('/d/:query')
   private async platform(@requestParam('query') query: string, req: Request, res: Response): Promise<void> {
     console.log(req.method, req.originalUrl, res.statusCode);
-    const responses = await this.handleQuery(TEST_USER_ID, undefined, query);
-    res.send(responses);
-    // res.send(initialResponses);
+    console.log({ query });
+    this.savedResponses = [];
+    this.expressResponse = res;
+    await this.handleQuery(TEST_USER_ID, undefined, query, this.sendResponsesToRequestOrigin);
   }
 
   @httpGet('/allStations')
@@ -65,16 +68,30 @@ export class GetController implements interfaces.Controller {
     res.send(allStations);
   }
 
-  private async handleQuery(senderId = '0', locale = 'en', query: string): Promise<IResponse[]> {
+  private async handleQuery(senderId = '0', locale = 'en', query: string, senderFuncion: senderFunction): Promise<void> {
     const normalizedQuery = normalizeString(query);
     const { stations, platforms } = await this.matcherService.matchStationsAndPlatforms(normalizedQuery);
     const initialResponses: IResponse[] = this.responsePreparator.prepareInitialResponses(senderId, locale, stations, platforms);
-    let departureList = new DepartureList('none', []);
-    let departureResponses: IResponse[] = [];
+    await senderFuncion(initialResponses);
     if (platforms.length === 1) {
-      departureList = await this.departureAggregator.getDepartures(stations[0], platforms[0]);
-      departureResponses = this.responsePreparator.prepareDepartureResponses(senderId, locale, departureList);
+      const departureList = await this.departureAggregator.getDepartures(stations[0], platforms[0]);
+      const departureResponses = this.responsePreparator.prepareDepartureResponses(senderId, locale, departureList);
+      await senderFuncion(departureResponses, true);
     }
-    return [...initialResponses, ...departureResponses];
   }
+
+  sendResponsesToMessengerApi = async (responses: IResponse[]): Promise<void> => {
+    for (let i = 0; i < responses.length; i += 1) {
+      await this.responseSender.sendResponse(responses[i]);
+    }
+  };
+
+  sendResponsesToRequestOrigin = async (responses: IResponse[], isFinal?: boolean): Promise<void> => {
+    const newResponses = [...this.savedResponses, ...responses];
+    if (!isFinal) {
+      this.savedResponses = newResponses;
+    } else {
+      await this.expressResponse.send(newResponses);
+    }
+  };
 }
