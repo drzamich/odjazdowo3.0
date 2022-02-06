@@ -1,71 +1,96 @@
-import { injectable, inject } from 'inversify';
-
-import Fuse from 'fuse.js';
-import { IMatcherService, IDbService, IZtmStation, IZtmPlatform, IMatcherResponse } from '../interface';
-import { TYPES } from '../IoC/types';
-import { ZtmStation } from '../schema';
+import { ZtmPlatform, ZtmStation, ZtmStationWithPlatforms } from "../schema";
+import { DbService, PrismaPostgresService } from "./DbService";
 
 export const MAX_MATCHED_STATIONS = 5;
 
-@injectable()
-export class MatcherService implements IMatcherService {
-  constructor(
-   @inject(TYPES.IDbService) private dbService: IDbService,
-  ) {}
-
-  async matchStationsAndPlatforms(query: string): Promise<IMatcherResponse> {
-    let stations: IZtmStation[] = await this.matchStations(query);
-    stations = stations.slice(0, MAX_MATCHED_STATIONS);
-    let platforms: IZtmPlatform[] = [];
-    if (stations.length === 1) {
-      platforms = this.matchPlatforms(stations[0], query);
+type MatcherResponse =
+  | {
+      type: "exactMatch";
+      station: ZtmStationWithPlatforms;
+      platform: ZtmPlatform;
     }
-    return {
-      stations,
-      platforms,
+  | {
+      type: "manyStationsFound";
+      stations: ZtmStationWithPlatforms[];
+    }
+  | {
+      type: "noStationsFound";
+    }
+  | {
+      type: "manyPlatformsFound" | "noSuchPlatform";
+      station: ZtmStationWithPlatforms;
+      platforms: ZtmPlatform[];
     };
+
+export class MatcherService {
+  dbService: DbService;
+
+  constructor() {
+    this.dbService = new PrismaPostgresService();
   }
 
-  private async matchStations(query: string): Promise<IZtmStation[]> {
-    const stations = await this.dbService.getAllStations() as IZtmStation[];
-    const strictOptions: Fuse.FuseOptions<IZtmStation> = {
-      keys: ['normalizedName'],
-      findAllMatches: false,
-      threshold: 0,
-    };
-    const looseOptions: Fuse.FuseOptions<IZtmStation> = {
-      ...strictOptions,
-      threshold: 0.1,
-    };
-    const strictFuse = new Fuse(stations, strictOptions);
-    const looseFuse = new Fuse(stations, looseOptions);
-
-    const strictResultFullQuery = strictFuse.search(query) as IZtmStation[];
-    if (strictResultFullQuery.length === 1) return strictResultFullQuery;
-    if (strictResultFullQuery.length > 1) return this.chooseBestOfBest(query, strictResultFullQuery);
-
-    const queryWithoutLastWord = query.split(' ').slice(undefined, -1).join(' ');
-    const strictResultTrimmedQuery = strictFuse.search(queryWithoutLastWord) as IZtmStation[];
-    if (strictResultTrimmedQuery.length === 1) return strictResultTrimmedQuery;
-    if (strictResultTrimmedQuery.length > 1) return this.chooseBestOfBest(query, strictResultTrimmedQuery);
-
-
-    const looseResultFullQuery = looseFuse.search(query) as IZtmStation[];
-    if (looseResultFullQuery.length > 0) return looseResultFullQuery;
-
-    const looseResultTrimmedQuery = looseFuse.search(queryWithoutLastWord) as IZtmStation[];
-    return looseResultTrimmedQuery;
+  async matchStationsAndPlatforms(query: string): Promise<MatcherResponse> {
+    let stations: ZtmStationWithPlatforms[] = await this.matchStations(query);
+    if (!stations.length) {
+      return { type: "noStationsFound" };
+    } else if (stations.length > 1) {
+      return {
+        type: "manyStationsFound",
+        stations: stations.slice(0, MAX_MATCHED_STATIONS),
+      };
+    } else {
+      const platforms = this.matchPlatforms(stations[0], query);
+      if (platforms.length > 1) {
+        return {
+          type: "manyPlatformsFound",
+          station: stations[0],
+          platforms,
+        };
+      } else if (!platforms.length) {
+        return {
+          type: "noSuchPlatform",
+          station: stations[0],
+          platforms,
+        };
+      } else {
+        return {
+          type: "exactMatch",
+          station: stations[0],
+          platform: platforms[0],
+        };
+      }
+    }
   }
 
-  private matchPlatforms(station: ZtmStation, query: string): IZtmPlatform[] {
-    const lastWordOfQuery = query.split(' ').slice(-1);
-    const parsedLastWord = Number(lastWordOfQuery).toString().padStart(2, '0');
-    const matchingPlatform = station.platforms.filter(({ plNumber }) => plNumber === parsedLastWord)[0];
-    return (matchingPlatform ? [matchingPlatform] : station.platforms);
+  async matchStations(query: string): Promise<ZtmStationWithPlatforms[]> {
+    if (query === "") return [];
+    const foundStations = await this.dbService.findStationsByName(query);
+    if (foundStations.length === 1) return foundStations;
+    else if (foundStations.length > 1) {
+      return this.chooseBestOfBest(query, foundStations);
+    } else {
+      const queryWithoutLastWord = this.trimLastWord(query);
+      return await this.matchStations(queryWithoutLastWord);
+    }
   }
 
-  private chooseBestOfBest(query: string, stations: IZtmStation[]): IZtmStation[] {
-    const queryWithoutLastWord = query.split(' ').slice(undefined, -1).join(' ');
+  private matchPlatforms(
+    station: ZtmStationWithPlatforms,
+    query: string
+  ): ZtmPlatform[] {
+    const lastWordOfQuery = query.split(" ").slice(-1);
+    const parsedLastWord = Number(lastWordOfQuery).toString().padStart(2, "0");
+    const matchingPlatform = station.platforms.find(
+      (platform) => platform.number === parsedLastWord
+    );
+    return matchingPlatform ? [matchingPlatform] : station.platforms;
+  }
+
+  private chooseBestOfBest(
+    query: string,
+    stations: ZtmStationWithPlatforms[]
+  ): ZtmStationWithPlatforms[] {
+    const queryWithoutLastWord = this.trimLastWord(query);
     for (const station of stations) {
       if (query === station.normalizedName) return [station];
     }
@@ -73,5 +98,9 @@ export class MatcherService implements IMatcherService {
       if (queryWithoutLastWord === station.normalizedName) return [station];
     }
     return stations;
+  }
+
+  private trimLastWord(query: string) {
+    return query.split(" ").slice(undefined, -1).join(" ");
   }
 }

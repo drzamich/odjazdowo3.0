@@ -1,0 +1,30 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Platform {
+  id           String  @id(map: "ztmplatforms_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  direction    String
+  url          String
+  isInSipTw    Boolean
+  ztmStationId String
+  number       String?
+  Station      Station @relation(fields: [ztmStationId], references: [ztmId], onDelete: NoAction, onUpdate: NoAction, map: "ztmStationId")
+
+  @@index([ztmStationId], map: "fki_ztmStationId")
+}
+
+model Station {
+  id             String     @id(map: "ztmstations_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ztmId          String     @unique(map: "ztmIdUnique")
+  name           String
+  url            String
+  normalizedName String
+  Platform       Platform[]
+}
