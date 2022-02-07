@@ -1,4 +1,10 @@
 import { ZtmPlatform, ZtmStation, ZtmStationWithPlatforms } from "../schema";
+import {
+  getLastWord,
+  isNumeric,
+  normalizeString,
+  trimLastWord,
+} from "../utils";
 import { DbService, PrismaPostgresService } from "./DbService";
 
 export const MAX_MATCHED_STATIONS = 5;
@@ -29,7 +35,8 @@ export class MatcherService {
     this.dbService = new PrismaPostgresService();
   }
 
-  async matchStationsAndPlatforms(query: string): Promise<MatcherResponse> {
+  async matchStationsAndPlatforms(rawQuery: string): Promise<MatcherResponse> {
+    const query = normalizeString(rawQuery);
     let stations: ZtmStationWithPlatforms[] = await this.matchStations(query);
     if (!stations.length) {
       return { type: "noStationsFound" };
@@ -62,14 +69,18 @@ export class MatcherService {
     }
   }
 
-  async matchStations(query: string): Promise<ZtmStationWithPlatforms[]> {
-    if (query === "") return [];
+  async matchStations(rawQuery: string): Promise<ZtmStationWithPlatforms[]> {
+    if (rawQuery === "") return [];
+    let query = rawQuery;
+    if (isNumeric(getLastWord(rawQuery))) {
+      query = trimLastWord(rawQuery);
+    }
     const foundStations = await this.dbService.findStationsByName(query);
     if (foundStations.length === 1) return foundStations;
     else if (foundStations.length > 1) {
       return this.chooseBestOfBest(query, foundStations);
     } else {
-      const queryWithoutLastWord = this.trimLastWord(query);
+      const queryWithoutLastWord = trimLastWord(query);
       return await this.matchStations(queryWithoutLastWord);
     }
   }
@@ -90,7 +101,7 @@ export class MatcherService {
     query: string,
     stations: ZtmStationWithPlatforms[]
   ): ZtmStationWithPlatforms[] {
-    const queryWithoutLastWord = this.trimLastWord(query);
+    const queryWithoutLastWord = trimLastWord(query);
     for (const station of stations) {
       if (query === station.normalizedName) return [station];
     }
@@ -98,9 +109,5 @@ export class MatcherService {
       if (queryWithoutLastWord === station.normalizedName) return [station];
     }
     return stations;
-  }
-
-  private trimLastWord(query: string) {
-    return query.split(" ").slice(undefined, -1).join(" ");
   }
 }

@@ -49,6 +49,14 @@ export const normalizeString = (input: string): string => {
   return output;
 };
 
+export const getLastWord = (str: string) => str.slice(-1);
+
+export const isNumeric = (str: string) => !Number.isNaN(Number(str));
+
+export const trimLastWord = (query: string) => {
+  return query.split(" ").slice(undefined, -1).join(" ");
+};
+
 export const removeBrand = <T extends { [key: string]: any }>(obj: T) => {
   const { __brand, ...rest } = obj;
   return rest;
