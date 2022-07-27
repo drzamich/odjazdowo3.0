@@ -7,10 +7,8 @@ addEventListener("fetch", (event) => {
 
 async function handleEvent(event: FetchEvent): Promise<Response> {
   const { request } = event;
-  console.log(request);
 
-  const body = JSON.stringify(request.body);
-  console.log(body);
+  const body = JSON.stringify(await request.json());
 
   // waitUntil method is used for sending logs, after response is sent
   // event.waitUntil(
