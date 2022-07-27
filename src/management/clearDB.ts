@@ -1,10 +1,11 @@
+import { Brand } from "../schema";
 import { PrismaPostgresService } from "../service/DbService";
 
 async function main() {
   const dbService = new PrismaPostgresService();
   const success =
-    (await dbService.deleteAll("platform")) &&
-    (await dbService.deleteAll("station"));
+    (await dbService.deleteAll(Brand.platform)) &&
+    (await dbService.deleteAll(Brand.station));
 
   if (success) {
     console.log("Successfully cleared the DB.");

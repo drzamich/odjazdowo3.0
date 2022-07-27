@@ -8,15 +8,19 @@
     "fillDBFromFile": "ts-node src/management/fillDBFromFile.ts",
     "clearDB": "ts-node src/management/clearDB.ts",
     "dumpDB": "ts-node src/management/dumpDB.ts",
-    "test": "ts-node src/test/test.ts"
+    "test": "ts-node src/test/test.ts",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@cloudflare/workers-types": "^3.3.1",
     "@types/node": "^17.0.15",
     "prisma": "^3.9.1",
+    "ts-loader": "^8.3.0",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "webpack": "^5.68.0"
   },
   "dependencies": {
     "@prisma/client": "^3.9.1",
