@@ -29,6 +29,7 @@
     "@prisma/client": "^4.1.1",
     "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.10",
+    "itty-router": "^2.6.1",
     "moment": "^2.29.1"
   }
 }
