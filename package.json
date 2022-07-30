@@ -10,7 +10,8 @@
     "dumpDB": "ts-node src/management/dumpDB.ts",
     "test": "ts-node src/test/test.ts",
     "build": "tsc",
-    "dev": "npx wrangler dev src/index.ts"
+    "dev": "npx wrangler dev src/index.ts",
+    "deploy": "wrangler publish src/index.ts"
   },
   "author": "",
   "license": "ISC",

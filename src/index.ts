@@ -31,5 +31,5 @@ async function handleEvent(event: FetchEvent): Promise<Response> {
     return new Response(`the body is ${JSON.stringify(body)}`);
   }
 
-  return new Response("Hello world");
+  return new Response("Hello world!");
 }

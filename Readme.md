@@ -48,11 +48,19 @@ npm run test "muranow 5"
 Start wrangler
 
 ```
-npx wrangler dev src/index.ts
+npm run dev
 ```
 
 Send a request
 
 ```
 curl -X POST http://localhost:8787 -H "Content-Type: application/json" -d '{"query": "muranow 5"}'
+```
+
+## Deployment
+
+Publishing on Cloudflare Workers
+
+```
+npm run deploy
 ```
