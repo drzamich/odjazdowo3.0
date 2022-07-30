@@ -1,2 +1,6 @@
 name = "bot-ts"
 compatibility_date = "2022-07-27"
+
+[vars]
+FB_PAGE_ACCESS_TOKEN=""
+MESSENGER_VERIFY_TOKEN=""
