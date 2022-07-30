@@ -26,7 +26,7 @@ npm i
 2. Generate Prisma
 
 ```
-npx prisma generate
+npx prisma generate --data-proxy
 ```
 
 3. Set up wrangler
@@ -54,5 +54,5 @@ npx wrangler dev src/index.ts
 Send a request
 
 ```
-curl -X POST http://localhost:8787 -H "Content-Type: application/json" -d '{"foo": 1}'
+curl -X POST http://localhost:8787 -H "Content-Type: application/json" -d '{"query": "muranow 5"}'
 ```
