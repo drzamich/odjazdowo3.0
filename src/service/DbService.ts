@@ -26,7 +26,7 @@ export class PrismaPostgresService implements DbService {
     this.prisma = new PrismaClient();
   }
 
-  disconnect(): void {
+  disconnect() {
     this.prisma.$disconnect();
   }
 
