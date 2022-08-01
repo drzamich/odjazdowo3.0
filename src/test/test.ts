@@ -1,9 +1,9 @@
-import { DepartureSevice } from "../service/DepartureService";
+import { DepartureService } from "../service/DepartureService";
 import { MatcherService } from "../service/MatcherService";
 
 async function main() {
   const matcher = new MatcherService();
-  const ds = new DepartureSevice();
+  const ds = new DepartureService();
   const query = process.argv[2];
   console.time("DBQuery");
   console.time("Dep");

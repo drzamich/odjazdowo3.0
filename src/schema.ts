@@ -1,16 +1,16 @@
 import { Platform, Station } from "@prisma/client";
 
 export enum Brand {
-  platform = "platform",
-  station = "station",
-  stationWithPlatforms = "stationWithPlatforms",
+  Platform = "platform",
+  Station = "station",
+  StationWithPlatforms = "stationWithPlatforms",
 }
 
-export type ZtmPlatform = Omit<Platform, "id"> & { __brand: Brand.platform };
-export type ZtmStation = Omit<Station, "id"> & { __brand: Brand.station };
+export type ZtmPlatform = Omit<Platform, "id"> & { __brand: Brand.Platform };
+export type ZtmStation = Omit<Station, "id"> & { __brand: Brand.Station };
 export type ZtmStationWithPlatforms = Omit<Station, "id"> & {
   platforms: ZtmPlatform[];
-  __brand: Brand.stationWithPlatforms;
+  __brand: Brand.StationWithPlatforms;
 };
 
 export type TableItem = ZtmPlatform | ZtmStation;
@@ -37,12 +37,3 @@ type ActualDepartureList = {
 };
 
 export type DepartureList = ErrorDepartureList | ActualDepartureList;
-
-// {
-//   const lines = this.departures.map(departure => {
-//     const { line, direction } = departure;
-//     const minutes = departure.getMinutesToDeparture();
-//     return `${line} | ${direction} | ${minutes}`;
-//   });
-//   return lines.join('\n');
-// }

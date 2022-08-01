@@ -11,7 +11,7 @@ export class DumpService {
     try {
       const json = JSON.stringify(items);
       writeFileSync(path, json);
-      console.log(`${tableName} saved succesfully to ${path}`);
+      console.log(`${tableName} saved successfully to ${path}`);
     } catch (e) {
       console.error(e);
       console.error(`Error when saving ${path} file.`);

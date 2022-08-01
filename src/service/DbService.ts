@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client/edge";
+import { PrismaClient as PrismaClientEdge } from "@prisma/client/edge";
+import { Prisma, PrismaClient as PrismaClientBrowser } from "@prisma/client";
 import { removeBrand } from "../utils";
 import {
   ZtmPlatform,
@@ -20,10 +21,10 @@ export type DbService = {
 };
 
 export class PrismaPostgresService implements DbService {
-  prisma: PrismaClient;
+  prisma: PrismaClientEdge | PrismaClientBrowser;
 
-  constructor() {
-    this.prisma = new PrismaClient();
+  constructor(prismaClient: PrismaClientEdge | PrismaClientBrowser) {
+    this.prisma = prismaClient;
   }
 
   disconnect() {
@@ -34,7 +35,7 @@ export class PrismaPostgresService implements DbService {
     let savedItems: Prisma.BatchPayload;
     const tableName = items[0].__brand;
     const itemsWithoutBrand = items.map(removeBrand);
-    if (tableName === Brand.platform) {
+    if (tableName === Brand.Platform) {
       savedItems = await this.prisma.platform.createMany({
         data: itemsWithoutBrand as ZtmPlatform[],
       });
@@ -54,13 +55,13 @@ export class PrismaPostgresService implements DbService {
   }
 
   async getAll(table: TableName): Promise<TableItem[]> {
-    if (table === Brand.platform) {
+    if (table === Brand.Platform) {
       return (await this.prisma.platform.findMany()).map((e) =>
-        addBrand(e, Brand.platform)
+        addBrand(e, Brand.Platform)
       );
     } else {
       return (await this.prisma.station.findMany()).map((e) =>
-        addBrand(e, Brand.station)
+        addBrand(e, Brand.Station)
       );
     }
   }
@@ -69,7 +70,7 @@ export class PrismaPostgresService implements DbService {
     const stationFromDB = await this.prisma.station.findFirst({
       where: { ztmId },
     });
-    return addBrand(stationFromDB!, Brand.station);
+    return addBrand(stationFromDB!, Brand.Station);
   }
 
   async findStationsByName(name: string): Promise<ZtmStationWithPlatforms[]> {
@@ -88,8 +89,8 @@ export class PrismaPostgresService implements DbService {
       });
       return stations.map((station) => ({
         ...station,
-        platforms: station.Platform.map((e) => addBrand(e, Brand.platform)),
-        __brand: Brand.stationWithPlatforms,
+        platforms: station.Platform.map((e) => addBrand(e, Brand.Platform)),
+        __brand: Brand.StationWithPlatforms,
       }));
     } catch (e) {
       console.error(e);
@@ -115,13 +116,4 @@ export class PrismaPostgresService implements DbService {
       return false;
     }
   }
-
-  // private parseStations = (stationsFromDb: Station[]): Station[] => {
-  //   return stationsFromDb.map((station) => {
-  //     const platforms = station.platforms.map(
-  //       (pl) => new ZtmPlatform(pl.plNumber, pl.direction, pl.url, pl.isInSipTw)
-  //     );
-  //     return new Station(station.ztmId, station.name, station.url, platforms);
-  //   });
-  // };
 }

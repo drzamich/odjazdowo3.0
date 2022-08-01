@@ -1,4 +1,5 @@
-import { ZtmPlatform, ZtmStation, ZtmStationWithPlatforms } from "../schema";
+import { PrismaClient } from "@prisma/client";
+import { ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
 import {
   getLastWord,
   isNumeric,
@@ -32,7 +33,7 @@ export class MatcherService {
   dbService: DbService;
 
   constructor() {
-    this.dbService = new PrismaPostgresService();
+    this.dbService = new PrismaPostgresService(new PrismaClient());
   }
 
   async matchStationsAndPlatforms(rawQuery: string): Promise<MatcherResponse> {

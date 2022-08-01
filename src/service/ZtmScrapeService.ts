@@ -43,7 +43,7 @@ export class ZtmScrapeService {
           name,
           normalizedName,
           url,
-          __brand: Brand.station,
+          __brand: Brand.Station,
         });
       });
 
@@ -94,7 +94,7 @@ export class ZtmScrapeService {
             url,
             ztmStationId,
             number: plNumber,
-            __brand: Brand.platform,
+            __brand: Brand.Platform,
           });
         });
 

@@ -57,7 +57,7 @@ export const trimLastWord = (query: string) => {
   return query.split(" ").slice(undefined, -1).join(" ");
 };
 
-export const removeBrand = <T extends { [key: string]: any }>(obj: T) => {
+export const removeBrand = <T extends { __brand: string }>(obj: T) => {
   const { __brand, ...rest } = obj;
   return rest;
 };

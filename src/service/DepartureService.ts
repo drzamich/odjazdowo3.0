@@ -1,7 +1,7 @@
 import { DepartureList, ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
 import { SipTwService } from "./SipTwService";
 
-export class DepartureSevice {
+export class DepartureService {
   private sipTwService: SipTwService;
 
   constructor() {
