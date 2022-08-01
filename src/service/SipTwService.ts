@@ -1,47 +1,46 @@
-import { injectable, inject } from 'inversify';
+import dotenv from "dotenv";
+import { DepartureList, Departure } from "../schema";
+import { HttpService } from "./HttpService";
 
-import { IHttpService, IRealTimeDepartureService, IDepartureList } from '../interface';
-import { TYPES } from '../IoC/types';
-import { LiveDeparture } from '../schema/LiveDeparture';
-import { DepartureList } from '../schema/DepartureList';
-
-interface PlatformDto {
+type PlatformDto = {
   StopId: string;
-}
+};
 
-interface DepartureDto {
+type DepartureDto = {
   Line: string;
   Destination: string;
   Arrival: number;
-}
+};
 
-@injectable()
-export class SipTwService implements IRealTimeDepartureService {
-  private userCode = 'WWW';
+dotenv.config();
 
-  private apiKey = '3aAhqA2/*RWsmvy}P8AsxgtFZ';
+export class SipTwService {
+  private userCode = "WWW";
 
-  constructor(
-    @inject(TYPES.IHttpService) private httpService: IHttpService,
-  ) {}
+  httpService: HttpService;
 
-  async getPlatformsList(): Promise<string[]> {
-    const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=${this.userCode}&userApiKey=${this.apiKey}`;
-    const platformsFromApi = await this.httpService.get<PlatformDto[]>(url);
-    return (platformsFromApi ? platformsFromApi.map(({ StopId }) => StopId) : []);
+  constructor() {
+    this.httpService = new HttpService();
   }
 
-  async getDeparturesForPlatform(platformId: string): Promise<IDepartureList> {
-    const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${this.apiKey}&stopId=${platformId}`;
+  async getPlatformsList(): Promise<string[]> {
+    const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=${this.userCode}&userApiKey=${process.env.SIP_TW_API_KEY}`;
+    const platformsFromApi = await this.httpService.get<PlatformDto[]>(url);
+    return platformsFromApi ? platformsFromApi.map(({ StopId }) => StopId) : [];
+  }
+
+  async getDeparturesForPlatform(platformId: string): Promise<DepartureList> {
+    const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${process.env.SIP_TW_API_KEY}&stopId=${platformId}`;
     const departuresFromApi = await this.httpService.get<DepartureDto[]>(url);
-    if (!departuresFromApi) return new DepartureList('error', []);
-    const departures = departuresFromApi.map(departureFromApi => {
-      return new LiveDeparture(
-        departureFromApi.Line,
-        departureFromApi.Destination,
-        departureFromApi.Arrival,
-      );
-    });
-    return new DepartureList('live', departures);
+    if (!departuresFromApi) return { type: "error" };
+    const departures: Departure[] = departuresFromApi.map((dep) => ({
+      line: dep.Line,
+      direction: dep.Destination,
+      minutesLeft: dep.Arrival,
+    }));
+    return {
+      type: "live",
+      departures,
+    };
   }
 }

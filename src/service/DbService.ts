@@ -1,47 +1,119 @@
-import { injectable } from 'inversify';
+import { PrismaClient as PrismaClientEdge } from "@prisma/client/edge";
+import { Prisma, PrismaClient as PrismaClientBrowser } from "@prisma/client";
+import { removeBrand } from "../utils";
+import {
+  ZtmPlatform,
+  ZtmStation,
+  ZtmStationWithPlatforms,
+  TableItem,
+  TableName,
+  addBrand,
+  Brand,
+} from "../schema";
 
-import { IDbService } from '../interface/service';
-import { IZtmStation, ZtmStationModel } from '../interface';
-import { ZtmStation } from '../schema';
-import { ZtmPlatform } from '../schema/ztm/ZtmPlatform';
+export type DbService = {
+  getAll(table: TableName): Promise<(ZtmStation | ZtmPlatform)[]>;
+  getStationById(id: string): Promise<ZtmStation | null>;
+  findStationsByName(name: string): Promise<ZtmStationWithPlatforms[]>;
+  save(items: (ZtmStation | ZtmPlatform)[]): Promise<boolean>;
+  deleteAll(table: TableName): Promise<boolean>;
+  disconnect(): void;
+};
 
+export class PrismaPostgresService implements DbService {
+  prisma: PrismaClientEdge | PrismaClientBrowser;
 
-@injectable()
-export class DbService implements IDbService {
-  async saveStations(stations: IZtmStation[]): Promise<boolean> {
-    const savedStations = await ZtmStationModel.insertMany(stations);
-    if (savedStations.length === stations.length) {
-      console.log(`Succesfully saved ${stations.length} stations to the database.`);
-      return true;
+  constructor(prismaClient: PrismaClientEdge | PrismaClientBrowser) {
+    this.prisma = prismaClient;
+  }
+
+  disconnect() {
+    this.prisma.$disconnect();
+  }
+
+  async save(items: TableItem[]): Promise<boolean> {
+    let savedItems: Prisma.BatchPayload;
+    const tableName = items[0].__brand;
+    const itemsWithoutBrand = items.map(removeBrand);
+    if (tableName === Brand.Platform) {
+      savedItems = await this.prisma.platform.createMany({
+        data: itemsWithoutBrand as ZtmPlatform[],
+      });
+    } else {
+      savedItems = await this.prisma.station.createMany({
+        data: itemsWithoutBrand as ZtmStation[],
+      });
     }
-    console.log('Error when saving stations to the database.');
-    return false;
-  }
-
-  async getAllStations(): Promise<ZtmStation[]> {
-    const stationsFromDb = await ZtmStationModel.find({});
-    return this.parseStations(stationsFromDb);
-  }
-
-  async getStationById(ztmId: string): Promise<ZtmStation[]> {
-    const stationFromDb = await ZtmStationModel.find({ ztmId }) as IZtmStation[];
-    return this.parseStations(stationFromDb);
-  }
-
-  async deleteAllStations(): Promise<boolean> {
-    const deleteQuery = await ZtmStationModel.deleteMany({});
-    if (deleteQuery.ok) {
-      console.log(`Removed all stations ${deleteQuery.deletedCount} from the database.`);
-      return true;
+    if (savedItems.count) {
+      console.log(
+        `Succesfully saved ${savedItems.count} ${tableName}s to the database.`
+      );
+    } else {
+      console.log(`Error when saving ${tableName}s to the database.`);
     }
-    console.log('Could not remove stations from the database.');
-    return false;
+    return Boolean(savedItems.count);
   }
 
-  private parseStations = (stationsFromDb: IZtmStation[]): IZtmStation[] => {
-    return stationsFromDb.map(station => {
-      const platforms = station.platforms.map(pl => new ZtmPlatform(pl.plNumber, pl.direction, pl.url, pl.isInSipTw));
-      return new ZtmStation(station.ztmId, station.name, station.url, platforms);
+  async getAll(table: TableName): Promise<TableItem[]> {
+    if (table === Brand.Platform) {
+      return (await this.prisma.platform.findMany()).map((e) =>
+        addBrand(e, Brand.Platform)
+      );
+    } else {
+      return (await this.prisma.station.findMany()).map((e) =>
+        addBrand(e, Brand.Station)
+      );
+    }
+  }
+
+  async getStationById(ztmId: string): Promise<ZtmStation | null> {
+    const stationFromDB = await this.prisma.station.findFirst({
+      where: { ztmId },
     });
-  };
+    return addBrand(stationFromDB!, Brand.Station);
+  }
+
+  async findStationsByName(name: string): Promise<ZtmStationWithPlatforms[]> {
+    const sanitizedName = name.split(" ").join(" & ");
+
+    try {
+      const stations = await this.prisma.station.findMany({
+        where: {
+          normalizedName: {
+            search: sanitizedName,
+          },
+        },
+        include: {
+          Platform: true,
+        },
+      });
+      return stations.map((station) => ({
+        ...station,
+        platforms: station.Platform.map((e) => addBrand(e, Brand.Platform)),
+        __brand: Brand.StationWithPlatforms,
+      }));
+    } catch (e) {
+      console.error(e);
+      console.error(`Error finding station of name ${name}`);
+      return [];
+    }
+  }
+
+  async deleteAll(table: TableName): Promise<boolean> {
+    try {
+      let deleteQuery: Prisma.BatchPayload;
+      if (table === "platform") {
+        deleteQuery = await this.prisma.platform.deleteMany({});
+      } else {
+        deleteQuery = await this.prisma.station.deleteMany({});
+      }
+      const deleteCount = deleteQuery.count;
+      console.log(`Removed ${deleteCount} ${table}s from the database.`);
+      return true;
+    } catch (e) {
+      console.warn(e);
+      console.log(`Could not remove ${table}s from the database.`);
+      return false;
+    }
+  }
 }
