@@ -1,6 +1,6 @@
 node_modules
 .env
-data
+data/**.json
 wrangler.toml
 dist
 worker
