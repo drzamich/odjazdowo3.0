@@ -36,7 +36,7 @@ export class MessengerService {
       receivedMessageSchema.parse(body);
       this.senderId = (body as ReceivedMessage).entry[0].messaging[0].sender.id;
     } catch {
-      console.error("Incorrect incoming message format");
+      throw new Error("Incorrect incoming message format");
     }
   }
 

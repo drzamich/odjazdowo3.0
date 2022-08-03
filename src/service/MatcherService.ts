@@ -30,10 +30,24 @@ type MatcherResponse =
     };
 
 export class MatcherService {
-  dbService: DbService;
+  constructor(private dbService: DbService) {}
 
-  constructor() {
-    this.dbService = new PrismaPostgresService(new PrismaClient());
+  private async matchStations(
+    rawQuery: string
+  ): Promise<ZtmStationWithPlatforms[]> {
+    if (rawQuery === "") return [];
+    let query = rawQuery;
+    if (isNumeric(getLastWord(rawQuery))) {
+      query = trimLastWord(rawQuery);
+    }
+    const foundStations = await this.dbService.findStationsByName(query);
+    if (foundStations.length === 1) return foundStations;
+    else if (foundStations.length > 1) {
+      return this.chooseBestOfBest(query, foundStations);
+    } else {
+      const queryWithoutLastWord = trimLastWord(query);
+      return await this.matchStations(queryWithoutLastWord);
+    }
   }
 
   async matchStationsAndPlatforms(rawQuery: string): Promise<MatcherResponse> {
@@ -67,22 +81,6 @@ export class MatcherService {
           platform: platforms[0],
         };
       }
-    }
-  }
-
-  async matchStations(rawQuery: string): Promise<ZtmStationWithPlatforms[]> {
-    if (rawQuery === "") return [];
-    let query = rawQuery;
-    if (isNumeric(getLastWord(rawQuery))) {
-      query = trimLastWord(rawQuery);
-    }
-    const foundStations = await this.dbService.findStationsByName(query);
-    if (foundStations.length === 1) return foundStations;
-    else if (foundStations.length > 1) {
-      return this.chooseBestOfBest(query, foundStations);
-    } else {
-      const queryWithoutLastWord = trimLastWord(query);
-      return await this.matchStations(queryWithoutLastWord);
     }
   }
 

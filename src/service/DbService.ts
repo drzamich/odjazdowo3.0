@@ -12,12 +12,12 @@ import {
 } from "../schema";
 
 export type DbService = {
-  getAll(table: TableName): Promise<(ZtmStation | ZtmPlatform)[]>;
-  getStationById(id: string): Promise<ZtmStation | null>;
   findStationsByName(name: string): Promise<ZtmStationWithPlatforms[]>;
-  save(items: (ZtmStation | ZtmPlatform)[]): Promise<boolean>;
-  deleteAll(table: TableName): Promise<boolean>;
-  disconnect(): void;
+  getAll?(table: TableName): Promise<(ZtmStation | ZtmPlatform)[]>;
+  getStationById?(id: string): Promise<ZtmStation | null>;
+  save?(items: (ZtmStation | ZtmPlatform)[]): Promise<boolean>;
+  deleteAll?(table: TableName): Promise<boolean>;
+  disconnect?(): void;
 };
 
 export class PrismaPostgresService implements DbService {
@@ -87,9 +87,12 @@ export class PrismaPostgresService implements DbService {
           Platform: true,
         },
       });
-      return stations.map((station) => ({
-        ...station,
-        platforms: station.Platform.map((e) => addBrand(e, Brand.Platform)),
+      return stations.map(({ name, normalizedName, url, ztmId, Platform }) => ({
+        name,
+        normalizedName,
+        url,
+        ztmId,
+        platforms: Platform.map((e) => addBrand(e, Brand.Platform)),
         __brand: Brand.StationWithPlatforms,
       }));
     } catch (e) {

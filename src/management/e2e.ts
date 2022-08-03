@@ -1,8 +1,12 @@
+import { PrismaClient } from "@prisma/client";
+import { PrismaPostgresService } from "../service/DbService";
 import { DepartureService } from "../service/DepartureService";
 import { MatcherService } from "../service/MatcherService";
 
 async function main() {
-  const matcher = new MatcherService();
+  const matcher = new MatcherService(
+    new PrismaPostgresService(new PrismaClient())
+  );
   const ds = new DepartureService();
   const query = process.argv[2];
   console.time("DBQuery");
