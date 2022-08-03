@@ -6,6 +6,8 @@ It is designed to run on the Cloudflare Workers and uses Prisma Data Proxy as th
 
 This repo contains management scripts necessary to set it up as well the code responsible for handling and responding to request sent by Messenger API.
 
+![odjazdowo](https://user-images.githubusercontent.com/26330688/182716457-e3d30106-a70a-4782-b4a6-616d6264fc8a.gif)
+
 ## How it works
 
 The whole workflow is as follows:
