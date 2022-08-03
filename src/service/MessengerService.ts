@@ -27,8 +27,7 @@ type Response = {
 };
 
 export class MessengerService {
-  private senderId: string = "";
-  constructor() {}
+  private senderId = "";
 
   async handleRequest(request: Request) {
     const body = await request.json();

@@ -58,6 +58,7 @@ export const trimLastWord = (query: string) => {
 };
 
 export const removeBrand = <T extends { __brand: string }>(obj: T) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { __brand, ...rest } = obj;
   return rest;
 };

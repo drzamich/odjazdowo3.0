@@ -11,6 +11,7 @@
     "test": "jest",
     "test:ci": "CI=true jest",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "e2e": "ts-node src/management/e2e.ts 'muranow 05'",
     "build": "tsc",
     "dev": "npx wrangler dev src/index.ts",

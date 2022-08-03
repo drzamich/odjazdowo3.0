@@ -1,7 +1,7 @@
 import { Brand } from "../schema";
 import { PrismaPostgresService } from "../service/DbService";
 import { DumpService } from "../service/DumpService";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 async function main() {
   const dbService = new PrismaPostgresService(new PrismaClient());

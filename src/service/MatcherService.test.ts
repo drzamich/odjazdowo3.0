@@ -5,7 +5,7 @@ import { centrumStation, otherStationsWithCentrumInName } from "./mocks";
 describe("MatcherService", () => {
   describe("when being passed a query with exact name of existing station", () => {
     class MockDBService implements DbService {
-      async findStationsByName(name: string) {
+      async findStationsByName() {
         return [centrumStation, ...otherStationsWithCentrumInName];
       }
     }

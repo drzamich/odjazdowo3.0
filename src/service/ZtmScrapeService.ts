@@ -33,7 +33,10 @@ export class ZtmScrapeService {
       );
       warsawLinks.each((index, element) => {
         const item = $(element);
-        const url = item.attr("href")!;
+        const url = item.attr("href");
+        if (!url) {
+          throw new Error("href attr missing");
+        }
         const fullName = item.find("span").first().text();
         const name = fullName.split(warsawIdentifier)[0].trim();
         const ztmId = url.split("wtp_st=")[1];
@@ -75,7 +78,9 @@ export class ZtmScrapeService {
         const links = $(".timetable-link");
         links.each((index, element) => {
           const item = $(element);
-          const url = item.attr("href")!;
+          if (!url) {
+            throw new Error("href attr missing");
+          }
           const fullName = item
             .find(".timetable-stop-point-title-name")
             .text()

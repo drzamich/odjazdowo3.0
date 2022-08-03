@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import { ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
 import {
   getLastWord,
@@ -6,7 +5,7 @@ import {
   normalizeString,
   trimLastWord,
 } from "../utils";
-import { DbService, PrismaPostgresService } from "./DbService";
+import { DbService } from "./DbService";
 
 export const MAX_MATCHED_STATIONS = 5;
 
@@ -52,7 +51,7 @@ export class MatcherService {
 
   async matchStationsAndPlatforms(rawQuery: string): Promise<MatcherResponse> {
     const query = normalizeString(rawQuery);
-    let stations: ZtmStationWithPlatforms[] = await this.matchStations(query);
+    const stations: ZtmStationWithPlatforms[] = await this.matchStations(query);
     if (!stations.length) {
       return { type: "noStationsFound" };
     } else if (stations.length > 1) {

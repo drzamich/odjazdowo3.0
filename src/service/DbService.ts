@@ -70,7 +70,10 @@ export class PrismaPostgresService implements DbService {
     const stationFromDB = await this.prisma.station.findFirst({
       where: { ztmId },
     });
-    return addBrand(stationFromDB!, Brand.Station);
+    if (!stationFromDB) {
+      throw new Error("No station found");
+    }
+    return addBrand(stationFromDB, Brand.Station);
   }
 
   async findStationsByName(name: string): Promise<ZtmStationWithPlatforms[]> {
