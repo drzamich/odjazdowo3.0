@@ -9,6 +9,7 @@
     "fillDBFromFile": "ts-node src/management/fillDBFromFile.ts",
     "clearDB": "ts-node src/management/clearDB.ts",
     "test": "jest",
+    "test:ci": "CI=true jest",
     "e2e": "ts-node src/management/e2e.ts 'muranow 05'",
     "build": "tsc",
     "dev": "npx wrangler dev src/index.ts",
