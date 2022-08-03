@@ -1,21 +1,7 @@
 import { Router } from "itty-router";
-import { Message, MessengerService } from "./service/MessengerService";
-
-type RequestBody = {
-  query: string;
-};
+import { MessengerService } from "./service/MessengerService";
 
 const router = Router();
-
-const generic = async () => {
-  return new Response("Hello World!");
-};
-
-const post = async (request: Request) => {
-  const body = (await request.json()) as RequestBody;
-
-  return new Response(`the body is ${JSON.stringify(body)}`);
-};
 
 const validateMessengerWebhook = async (request: Request) => {
   const { url } = request;
@@ -34,16 +20,12 @@ const validateMessengerWebhook = async (request: Request) => {
 router.get("/messenger-webhook", validateMessengerWebhook);
 
 const handleMessengerMessage = async (request: Request) => {
-  const body = (await request.json()) as Message;
-  const messengerService = new MessengerService(body);
+  const messengerService = new MessengerService();
+  await messengerService.handleRequest(request);
   await messengerService.respond("test");
   return new Response(undefined, { status: 200 });
 };
 
 router.post("/messenger-webhook", handleMessengerMessage);
-
-router.get("*", generic);
-
-router.post("*", post);
 
 export const handleRequest = (request: Request) => router.handle(request);

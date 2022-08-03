@@ -1,50 +1,48 @@
-const EXAMPLE_MESSAGE = {
-  object: "page",
-  entry: [
-    {
-      id: "2037087543002596",
-      time: 1659206478990,
-      messaging: [
-        {
-          sender: {
-            id: "2742639875761499",
-          },
-          recipient: {
-            id: "2037087543002596",
-          },
-          timestamp: 1659206478703,
-          message: {
-            mid: "m_wO_h4yEh9Gw46gNn2iTUFOMfLLrpUAZYgLOnWs5B1zotN5Yzcn2TkhlvvhtyKqFAT5WAnSGFe6HbiLo14VWr2A",
-            text: "1",
-          },
-        },
-      ],
-    },
-  ],
-};
+import { z } from "zod";
 
-const EXAMPLE_RESPONSE = {
-  messaging_type: "",
+const receivedMessageSchema = z.object({
+  entry: z.array(
+    z.object({
+      messaging: z.array(
+        z.object({
+          sender: z.object({
+            id: z.string(),
+          }),
+        })
+      ),
+    })
+  ),
+});
+
+type ReceivedMessage = z.infer<typeof receivedMessageSchema>;
+
+type Response = {
+  messaging_type: "RESPONSE" | "UPDATE" | "MESSAGE_TAG";
   recipient: {
-    id: "<PSID>",
-  },
+    id: string;
+  };
   message: {
-    text: "hello, world!",
-  },
+    text: string;
+  };
 };
-
-export type Message = typeof EXAMPLE_MESSAGE;
-type Response = typeof EXAMPLE_RESPONSE;
-
-const API_URL = `https://graph.facebook.com/v14.0/me/messages?access_token=${MESSENGER_PAGE_ACCESS_TOKEN}`;
 
 export class MessengerService {
-  private senderId: string;
-  constructor(private message: Message) {
-    this.senderId = message.entry[0].messaging[0].sender.id;
+  private senderId: string = "";
+  constructor() {}
+
+  async handleRequest(request: Request) {
+    const body = await request.json();
+    try {
+      receivedMessageSchema.parse(body);
+      this.senderId = (body as ReceivedMessage).entry[0].messaging[0].sender.id;
+    } catch {
+      console.error("Incorrect incoming message format");
+    }
   }
 
   async respond(text: string) {
+    const API_URL = `https://graph.facebook.com/v14.0/me/messages?access_token=${MESSENGER_PAGE_ACCESS_TOKEN}`;
+
     const payload: Response = {
       messaging_type: "RESPONSE",
       recipient: {
