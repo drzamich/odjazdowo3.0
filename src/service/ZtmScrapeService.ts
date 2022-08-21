@@ -19,7 +19,7 @@ export class ZtmScrapeService {
     try {
       const aggregateUrl = this.generateAggregateUrl();
       console.log(`Fetching list of stations from ${aggregateUrl} ...`);
-      const fetchedWebsite = await this.httpService.get<string>(aggregateUrl);
+      const fetchedWebsite = await this.httpService.get(aggregateUrl) as string;
       if (!fetchedWebsite) {
         console.log("Could not fetch list of stations from ZTM.");
         return [];
@@ -69,7 +69,7 @@ export class ZtmScrapeService {
       for (let i = 0; i < len; i++) {
         const { name, url, ztmId: ztmStationId } = emptyStations[i];
         console.log(`Fetching platforms for station '${name}' ...`);
-        const fetchedWebsite = await this.httpService.get<string>(url);
+        const fetchedWebsite = await this.httpService.get(url) as string;
         if (!fetchedWebsite) {
           console.log(`Could not get platforms for station ${name}`);
           return [];

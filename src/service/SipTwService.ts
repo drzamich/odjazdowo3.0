@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { DepartureList, Departure } from "../schema";
 import { HttpService } from "./HttpService";
 
@@ -12,11 +11,7 @@ type DepartureDto = {
   Arrival: number;
 };
 
-dotenv.config();
-
 export class SipTwService {
-  private userCode = "WWW";
-
   httpService: HttpService;
 
   constructor() {
@@ -24,14 +19,16 @@ export class SipTwService {
   }
 
   async getPlatformsList(): Promise<string[]> {
-    const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=${this.userCode}&userApiKey=${process.env.SIP_TW_API_KEY}`;
-    const platformsFromApi = await this.httpService.get<PlatformDto[]>(url);
+    const url = `https://public-sip-api.tw.waw.pl/api/GetStops?userCode=WWW&userApiKey=${SIP_TW_API_KEY}`;
+    const platformsFromApi = (await this.httpService.get(url)) as PlatformDto[];
     return platformsFromApi ? platformsFromApi.map(({ StopId }) => StopId) : [];
   }
 
   async getDeparturesForPlatform(platformId: string): Promise<DepartureList> {
-    const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=${this.userCode}&userApiKey=${process.env.SIP_TW_API_KEY}&stopId=${platformId}`;
-    const departuresFromApi = await this.httpService.get<DepartureDto[]>(url);
+    const url = `https://public-sip-api.tw.waw.pl/api/GetLatestPanelPredictions?userCode=WWW&userApiKey=${SIP_TW_API_KEY}&stopId=${platformId}`;
+    const departuresFromApi = (await this.httpService.get(
+      url
+    )) as DepartureDto[];
     if (!departuresFromApi) return { type: "error" };
     const departures: Departure[] = departuresFromApi.map((dep) => ({
       line: dep.Line,

@@ -8,6 +8,9 @@ const receivedMessageSchema = z.object({
           sender: z.object({
             id: z.string(),
           }),
+          message: z.object({
+            text: z.string(),
+          }),
         })
       ),
     })
@@ -29,14 +32,15 @@ type Response = {
 export class MessengerService {
   private senderId = "";
 
-  async handleRequest(request: Request) {
-    const body = await request.json();
+  async receiveRequest(request: Request) {
+    const body = (await request.json()) as ReceivedMessage;
     try {
       receivedMessageSchema.parse(body);
-      this.senderId = (body as ReceivedMessage).entry[0].messaging[0].sender.id;
     } catch {
       throw new Error("Incorrect incoming message format");
     }
+    this.senderId = body.entry[0].messaging[0].sender.id;
+    return body.entry[0].messaging[0].message.text;
   }
 
   async respond(text: string) {

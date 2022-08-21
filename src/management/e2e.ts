@@ -1,11 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import * as dotenv from "dotenv";
+import { PrismaClient as PrismaClientBrowser } from "@prisma/client";
 import { PrismaPostgresService } from "../service/DbService";
 import { DepartureService } from "../service/DepartureService";
 import { MatcherService } from "../service/MatcherService";
-
 async function main() {
+  dotenv.config();
   const matcher = new MatcherService(
-    new PrismaPostgresService(new PrismaClient())
+    new PrismaPostgresService(new PrismaClientBrowser())
   );
   const ds = new DepartureService();
   const query = process.argv[2];

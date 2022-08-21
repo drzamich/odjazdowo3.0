@@ -1,5 +1,8 @@
+import { PrismaClient as PrismaClientEdge } from "@prisma/client/edge";
 import { Router } from "itty-router";
+
 import { MessengerService } from "./service/MessengerService";
+import { ResponseService } from "./service/ResponseService";
 
 const router = Router();
 
@@ -21,8 +24,10 @@ router.get("/messenger-webhook", validateMessengerWebhook);
 
 const handleMessengerMessage = async (request: Request) => {
   const messengerService = new MessengerService();
-  await messengerService.handleRequest(request);
-  await messengerService.respond("test");
+  const query = await messengerService.receiveRequest(request);
+  const responseService = new ResponseService(query, new PrismaClientEdge());
+  const response = await responseService.getResponse();
+  await messengerService.respond(response);
   return new Response(undefined, { status: 200 });
 };
 
