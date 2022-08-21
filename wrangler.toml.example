@@ -1,6 +1,9 @@
 name = "bot-ts"
 compatibility_date = "2022-07-27"
+node_compat=true
 
 [vars]
 MESSENGER_PAGE_ACCESS_TOKEN=""
 MESSENGER_VERIFY_TOKEN=""
+DATABASE_URL=""
+SIP_TW_API_KEY=""
