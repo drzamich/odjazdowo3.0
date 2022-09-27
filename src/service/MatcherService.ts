@@ -1,5 +1,6 @@
-import { ZtmPlatform, ZtmStation, ZtmStationWithPlatforms } from "../schema";
+import { ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
 import {
+  decodeStationAndPlatformFromQuickReply,
   getLastWord,
   isNumeric,
   normalizeString,
@@ -12,7 +13,7 @@ export const MAX_MATCHED_STATIONS = 5;
 type MatcherResponse =
   | {
       type: "exactMatch";
-      station: ZtmStation | ZtmStationWithPlatforms;
+      station: ZtmStationWithPlatforms;
       platform: ZtmPlatform;
     }
   | {
@@ -39,10 +40,7 @@ export class MatcherService {
   }
 
   private matchFromQuickReply(query: string): MatcherResponse {
-    const { station, platform } = JSON.parse(query.replace("QR:", "")) as {
-      station: ZtmStation;
-      platform: ZtmPlatform;
-    };
+    const { station, platform } = decodeStationAndPlatformFromQuickReply(query);
     return {
       type: "exactMatch",
       station,

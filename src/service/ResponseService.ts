@@ -11,6 +11,7 @@ import {
   ZtmStationWithPlatforms,
 } from "../schema";
 import { Message, QuickReply } from "./MessengerService";
+import { encodeStationAndPlatformToQuickReply } from "../utils";
 
 export class ResponseService {
   query: string;
@@ -42,10 +43,10 @@ export class ResponseService {
         {
           content_type: "text",
           title: "Refresh",
-          payload: `QR:${JSON.stringify({
-            station: { ...match.station, platforms: 0 },
-            platform: { ...match.platform },
-          })}`,
+          payload: encodeStationAndPlatformToQuickReply(
+            match.station,
+            match.platform
+          ),
         },
       ];
     }
@@ -66,11 +67,13 @@ export class ResponseService {
 
       if (platformsInSipTw.length) {
         responseText = `Station: ${match.station.name}. Choose the platform:`;
-        const stationName = match.station.normalizedName;
-        quickReplies = platformsInSipTw.map(({ number, direction }) => ({
+        quickReplies = platformsInSipTw.map((platform) => ({
           content_type: "text",
-          payload: `${stationName} ${number}`,
-          title: `${number} (${direction})`,
+          payload: encodeStationAndPlatformToQuickReply(
+            match.station,
+            platform
+          ),
+          title: `${platform.number} (${platform.direction})`,
         }));
       } else {
         responseText = "No platforms on this station are in the system.";

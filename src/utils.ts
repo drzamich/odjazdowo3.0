@@ -1,3 +1,5 @@
+import { ZtmPlatform, ZtmStationWithPlatforms } from "./schema";
+
 export const normalizeString = (input: string): string => {
   let output = input.toLocaleLowerCase();
   const replacements = [
@@ -62,3 +64,18 @@ export const removeBrand = <T extends { __brand: string }>(obj: T) => {
   const { __brand, ...rest } = obj;
   return rest;
 };
+
+export const encodeStationAndPlatformToQuickReply = (
+  station: ZtmStationWithPlatforms,
+  platform: ZtmPlatform
+) =>
+  `QR:${JSON.stringify({
+    station: { ...station, platforms: 0 },
+    platform,
+  })}`;
+
+export const decodeStationAndPlatformFromQuickReply = (query: string) =>
+  JSON.parse(query.replace("QR:", "")) as {
+    station: ZtmStationWithPlatforms;
+    platform: ZtmPlatform;
+  };

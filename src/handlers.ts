@@ -29,7 +29,7 @@ const handleMessengerMessage = async (request: Request) => {
   const responseService = new ResponseService(query, new PrismaClientEdge());
   const responseMessage = await responseService.getResponseMessage();
   const end = Date.now();
-  console.log("Core time [s]: ", (end - start) / 1000);
+  console.log(`Core time [s]: ${(end - start) / 1000}`);
   await messengerService.respond(responseMessage);
   return new Response(undefined, { status: 200 });
 };

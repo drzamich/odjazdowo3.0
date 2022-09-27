@@ -13,21 +13,17 @@ describe("MatcherService", () => {
     const matcherService = new MatcherService(new MockDBService());
 
     it("returns `manyPlatformsFound` when query doesn't include platform number", async () => {
-      const result = await matcherService.matchStationsAndPlatforms("centrum");
+      const result = await matcherService.match("centrum");
       expect(result.type).toBe("manyPlatformsFound");
     });
 
     it("returns `exactMatch` when query includes existing platform number", async () => {
-      const result = await matcherService.matchStationsAndPlatforms(
-        "centrum 5"
-      );
+      const result = await matcherService.match("centrum 5");
       expect(result.type).toBe("exactMatch");
     });
 
     it("returns `manyPlatformsFound` when query includes platform number that doesn't exist", async () => {
-      const result = await matcherService.matchStationsAndPlatforms(
-        "centrum 71"
-      );
+      const result = await matcherService.match("centrum 71");
       expect(result.type).toBe("manyPlatformsFound");
     });
   });

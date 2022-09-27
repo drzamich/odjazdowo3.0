@@ -12,7 +12,7 @@ async function main() {
   const query = process.argv[2];
   console.time("DBQuery");
   console.time("Dep");
-  const match = await matcher.matchStationsAndPlatforms(query);
+  const match = await matcher.match(query);
   console.timeEnd("DBQuery");
   if (match.type === "exactMatch") {
     const departures = await ds.getDepartures(match.station, match.platform);
