@@ -25,8 +25,11 @@ router.get("/messenger-webhook", validateMessengerWebhook);
 const handleMessengerMessage = async (request: Request) => {
   const messengerService = new MessengerService();
   const query = await messengerService.receiveRequest(request);
+  const start = Date.now();
   const responseService = new ResponseService(query, new PrismaClientEdge());
   const responseMessage = await responseService.getResponseMessage();
+  const end = Date.now();
+  console.log("Core time [s]: ", (end - start) / 1000);
   await messengerService.respond(responseMessage);
   return new Response(undefined, { status: 200 });
 };
