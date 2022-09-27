@@ -20,8 +20,8 @@ export class ResponseService {
     const departureService = new DepartureService();
     const match = await matcher.matchStationsAndPlatforms(this.query);
 
-    let responseText = "Not available";
-    let quickReplies: QuickReply[] | undefined = undefined;
+    let responseText = "Not in the system.";
+    let quickReplies: QuickReply[] = [];
 
     if (match.type === "exactMatch") {
       const departures = await departureService.getDepartures(
@@ -42,9 +42,36 @@ export class ResponseService {
       ];
     }
 
+    if (match.type === "manyStationsFound") {
+      responseText = "Choose the station:";
+      quickReplies = match.stations.map(({ name, normalizedName }) => ({
+        content_type: "text",
+        payload: normalizedName,
+        title: name,
+      }));
+    }
+
+    if (match.type === "manyPlatformsFound") {
+      const platformsInSipTw = match.platforms.filter(
+        ({ isInSipTw }) => isInSipTw
+      );
+
+      if (platformsInSipTw.length) {
+        responseText = `Station: ${match.station.name}. Choose the platform:`;
+        const stationName = match.station.normalizedName;
+        quickReplies = platformsInSipTw.map(({ number, direction }) => ({
+          content_type: "text",
+          payload: `${stationName} ${number}`,
+          title: `${number} (${direction})`,
+        }));
+      } else {
+        responseText = "No platforms on this station are in the system.";
+      }
+    }
+
     return {
       text: responseText,
-      quick_replies: quickReplies,
+      quick_replies: quickReplies.length ? quickReplies : undefined,
     };
   }
 
@@ -54,9 +81,9 @@ export class ResponseService {
     departures: DepartureList
   ) => {
     if (departures.type !== "live") {
-      return "Not available";
+      return "Not in the system.";
     }
-    const firstLine = `Departures for ${station.name} ${platform.number}`;
+    const firstLine = `Departures for ${station.name} ${platform.number}:`;
     const otherLines = departures.departures
       .map(
         ({ line, direction, minutesLeft }) =>
