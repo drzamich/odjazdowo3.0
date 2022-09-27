@@ -1,6 +1,6 @@
 export const normalizeString = (input: string): string => {
   let output = input.toLocaleLowerCase();
-  const replacemenets = [
+  const replacements = [
     {
       i: /[ąàáâäæãåā]/g,
       o: "a",
@@ -42,7 +42,7 @@ export const normalizeString = (input: string): string => {
       o: " ",
     },
   ];
-  replacemenets.forEach(({ i, o }) => {
+  replacements.forEach(({ i, o }) => {
     output = output.replace(i, o);
   });
   output = output.trim();

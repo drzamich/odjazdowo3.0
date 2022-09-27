@@ -4,7 +4,12 @@ import { PrismaClient as PrismaClientBrowser } from "@prisma/client";
 import { PrismaPostgresService } from "./DbService";
 import { DepartureService } from "./DepartureService";
 import { MatcherService } from "./MatcherService";
-import { DepartureList, ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
+import {
+  DepartureList,
+  ZtmPlatform,
+  ZtmStation,
+  ZtmStationWithPlatforms,
+} from "../schema";
 import { Message, QuickReply } from "./MessengerService";
 
 export class ResponseService {
@@ -18,7 +23,7 @@ export class ResponseService {
   async getResponseMessage(): Promise<Message> {
     const matcher = new MatcherService(new PrismaPostgresService(this.prisma));
     const departureService = new DepartureService();
-    const match = await matcher.matchStationsAndPlatforms(this.query);
+    const match = await matcher.match(this.query);
 
     let responseText = "Not in the system.";
     let quickReplies: QuickReply[] = [];
@@ -37,7 +42,10 @@ export class ResponseService {
         {
           content_type: "text",
           title: "Refresh",
-          payload: `${match.station.normalizedName} ${match.platform.number}`,
+          payload: `QR:${JSON.stringify({
+            station: { ...match.station, platforms: 0 },
+            platform: { ...match.platform },
+          })}`,
         },
       ];
     }
@@ -76,7 +84,7 @@ export class ResponseService {
   }
 
   private parseDeparturesIntoText = (
-    station: ZtmStationWithPlatforms,
+    station: ZtmStation | ZtmStationWithPlatforms,
     platform: ZtmPlatform,
     departures: DepartureList
   ) => {

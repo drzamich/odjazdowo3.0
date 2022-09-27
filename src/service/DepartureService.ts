@@ -1,4 +1,9 @@
-import { DepartureList, ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
+import {
+  DepartureList,
+  ZtmPlatform,
+  ZtmStation,
+  ZtmStationWithPlatforms,
+} from "../schema";
 import { SipTwService } from "./SipTwService";
 
 export class DepartureService {
@@ -8,7 +13,7 @@ export class DepartureService {
     this.sipTwService = new SipTwService();
   }
   async getDepartures(
-    station: ZtmStationWithPlatforms,
+    station: ZtmStation | ZtmStationWithPlatforms,
     platform: ZtmPlatform
   ): Promise<DepartureList> {
     const platformId = `${station.ztmId}${platform.number}`;

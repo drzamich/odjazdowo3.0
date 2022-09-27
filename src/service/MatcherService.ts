@@ -1,4 +1,4 @@
-import { ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
+import { ZtmPlatform, ZtmStation, ZtmStationWithPlatforms } from "../schema";
 import {
   getLastWord,
   isNumeric,
@@ -12,7 +12,7 @@ export const MAX_MATCHED_STATIONS = 5;
 type MatcherResponse =
   | {
       type: "exactMatch";
-      station: ZtmStationWithPlatforms;
+      station: ZtmStation | ZtmStationWithPlatforms;
       platform: ZtmPlatform;
     }
   | {
@@ -30,6 +30,25 @@ type MatcherResponse =
 
 export class MatcherService {
   constructor(private dbService: DbService) {}
+
+  async match(query: string): Promise<MatcherResponse> {
+    if (query.startsWith("QR:")) {
+      return this.matchFromQuickReply(query);
+    }
+    return this.matchStationsAndPlatforms(query);
+  }
+
+  private matchFromQuickReply(query: string): MatcherResponse {
+    const { station, platform } = JSON.parse(query.replace("QR:", "")) as {
+      station: ZtmStation;
+      platform: ZtmPlatform;
+    };
+    return {
+      type: "exactMatch",
+      station,
+      platform,
+    };
+  }
 
   private async matchStations(
     rawQuery: string
@@ -49,9 +68,11 @@ export class MatcherService {
     }
   }
 
-  async matchStationsAndPlatforms(rawQuery: string): Promise<MatcherResponse> {
+  private async matchStationsAndPlatforms(
+    rawQuery: string
+  ): Promise<MatcherResponse> {
     const query = normalizeString(rawQuery);
-    const stations: ZtmStationWithPlatforms[] = await this.matchStations(query);
+    const stations = await this.matchStations(query);
     if (!stations.length) {
       return { type: "noStationsFound" };
     } else if (stations.length > 1) {
