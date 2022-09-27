@@ -26,8 +26,8 @@ const handleMessengerMessage = async (request: Request) => {
   const messengerService = new MessengerService();
   const query = await messengerService.receiveRequest(request);
   const responseService = new ResponseService(query, new PrismaClientEdge());
-  const response = await responseService.getResponse();
-  await messengerService.respond(response);
+  const responseMessage = await responseService.getResponseMessage();
+  await messengerService.respond(responseMessage);
   return new Response(undefined, { status: 200 });
 };
 

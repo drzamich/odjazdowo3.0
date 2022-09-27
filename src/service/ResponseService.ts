@@ -5,6 +5,7 @@ import { PrismaPostgresService } from "./DbService";
 import { DepartureService } from "./DepartureService";
 import { MatcherService } from "./MatcherService";
 import { DepartureList, ZtmPlatform, ZtmStationWithPlatforms } from "../schema";
+import { Message, QuickReply } from "./MessengerService";
 
 export class ResponseService {
   query: string;
@@ -14,24 +15,37 @@ export class ResponseService {
     this.prisma = prisma;
   }
 
-  async getResponse() {
+  async getResponseMessage(): Promise<Message> {
     const matcher = new MatcherService(new PrismaPostgresService(this.prisma));
     const departureService = new DepartureService();
     const match = await matcher.matchStationsAndPlatforms(this.query);
+
+    let responseText = "Not available";
+    let quickReplies: QuickReply[] | undefined = undefined;
 
     if (match.type === "exactMatch") {
       const departures = await departureService.getDepartures(
         match.station,
         match.platform
       );
-      return this.parseDeparturesIntoText(
+      responseText = this.parseDeparturesIntoText(
         match.station,
         match.platform,
         departures
       );
+      quickReplies = [
+        {
+          content_type: "text",
+          title: "Refresh",
+          payload: `${match.station.normalizedName} ${match.platform.number}`,
+        },
+      ];
     }
 
-    return "Not available";
+    return {
+      text: responseText,
+      quick_replies: quickReplies,
+    };
   }
 
   private parseDeparturesIntoText = (
