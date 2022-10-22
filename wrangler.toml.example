@@ -2,6 +2,7 @@ name = "bot-ts"
 compatibility_date = "2022-07-27"
 
 [vars]
+PRISMA_CLIENT_ENGINE_TYPE='dataproxy'
 MESSENGER_PAGE_ACCESS_TOKEN=""
 MESSENGER_VERIFY_TOKEN=""
 DATABASE_URL=""
